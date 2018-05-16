@@ -21,7 +21,7 @@ module.exports = function( app ) {
   app.use(bodyParser.json());
   app.use(methodOverride());
   app.set('x-powered-by', false);
-  app.set('json spaces', true);
+  app.set('json spaces', 2);
   app.use(
     winstonExpress.logger({
       winstonInstance: config.logger,
@@ -30,10 +30,6 @@ module.exports = function( app ) {
       colorize: true
     })
   );
-
-  if( 'development' === app.get('env') ) {
-    app.use(require('connect-livereload')());
-  }
 
   // support old v0 urls
   require('./routes.v0')(app);
