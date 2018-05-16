@@ -12,7 +12,7 @@ var path    = require('path');
 
 var TransmissionDownloader = function( options ) {
   this.metadata = {
-    pluginId: 'com.transmissionbt',          // Unique ID of plugin
+    pluginId: 'com_transmissionbt',          // Unique ID of plugin
     pluginName: 'Transmission',              // Display name of plugin
     pluginTypes: 'downloader',               // 'source', 'downloader', 'player'
     sourceTypes: 'adhoc',                    // 'adhoc', 'continuous'

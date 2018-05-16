@@ -135,14 +135,95 @@
         operationId: "getallsettings"
         tags: 
           - "Settings"
+      put: 
+        responses: 
+          202: 
+            description: "Updated successfully"
+            schema: 
+              type: "object"
+              properties: {}
+        summary: "Change ALL settings via body object"
+        description: "This will allow you to change all of the settings in the system at once.. if parts of the object are missing they will be nullified.  If you don't want this behavior, use the `PATCH` method."
+        operationId: "putallsettings"
+        tags: 
+          - "Settings"
+        parameters: 
+          - 
+            in: "body"
+            name: "body"
+            schema: 
+              $ref: "#/definitions/settingsModel"
+            description: "Settings to change"
+            x-examples: 
+              application/json: 
+                downloadPaths: 
+                  root: "consectetur tempor qui"
+                  default: "irure cillum"
+                  movies: "dolor sed enim"
+                  music: "cillum dolor "
+                  photos: "ut Lorem sunt mini"
+                  shows: "enim Lorem ad"
+                plugins: 
+                  com_flexget: 
+                    api_token: null
+                    enabled: false
+                    flexgetCheckFrequency: 52589380
+                    flexget_host: "consectetur officia et Lorem"
+                    flexget_pass: "nostrud ut est consectetur"
+                    flexget_port: 41810233
+                    flexget_user: "cillu"
+                  com_kapture_url: 
+                    enabled: true
+                  com_piratebay: 
+                    enabled: true
+                  com_transmissionbt: 
+                    enabled: false
+                    transmission_host: "deserunt"
+                    transmission_pass: "dolore commodo nulla sunt anim"
+                    transmission_port: 56023170
+                    transmission_user: "dolor sunt"
+                  com_youtube: 
+                    enabled: false
+                  info_showrss: 
+                    enabled: true
+                system: 
+                  name: "laboris fugiat"
+                userInfo: 
+                  email: null
+      patch: 
+        responses: 
+          202: 
+            description: "Successfully changed settings"
+            schema: 
+              type: "object"
+              properties: {}
+        summary: "Update only the settings presented in body"
+        description: "This will update only the supplied settings"
+        operationId: "patchsettings"
+        tags: 
+          - "Settings"
+        parameters: 
+          - 
+            in: "body"
+            name: "body"
+            schema: 
+              $ref: "#/definitions/settingsModel"
+            description: "All of these options are optional, only supply the ones that need to be updated"
+            x-examples: {}
     /settings/{key}: 
       get: 
         responses: 
           200: 
-            description: ""
+            description: "Value of requested setting"
             schema: 
               type: "object"
-              properties: {}
+              required: 
+                - "value"
+              properties: 
+                value: 
+                  type: "string"
+          404: 
+            description: "Setting not found"
         summary: "Get a setting"
         operationId: "getsetting"
         tags: 
@@ -154,17 +235,6 @@
           type: "string"
           required: true
           description: "Key of setting you would like to change (nested keys are separated by .)"
-      put: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Change a setting"
-        operationId: "changesetting"
-        tags: 
-          - "Settings"
     /downloads/source:{sourceId}/{slug}: 
       post: 
         responses: 
@@ -299,6 +369,7 @@
               - "music"
               - "other"
               - "photo"
+              - "auto"
             required: true
         operationId: "newupload"
         tags: 
@@ -401,6 +472,7 @@
         - "mediaType"
         - "id"
         - "title"
+      description: "A (usually) tvshow series entry provided by a plugin"
     trendingMediaEntry: 
       type: "object"
       properties: 
@@ -412,6 +484,91 @@
           type: "string"
         sourceId: 
           type: "string"
+      description: "How a trending-media object is presented"
+    settingsModel: 
+      type: "object"
+      description: "Represents the settings of the currently running kapture system"
+      properties: 
+        downloadPaths: 
+          type: "object"
+          properties: 
+            default: 
+              type: "string"
+            movies: 
+              type: "string"
+            music: 
+              type: "string"
+            photos: 
+              type: "string"
+            root: 
+              type: "string"
+            shows: 
+              type: "string"
+        plugins: 
+          type: "object"
+          properties: 
+            com_flexget: 
+              type: "object"
+              properties: 
+                api_token: 
+                  type: "null"
+                enabled: 
+                  type: "boolean"
+                flexgetCheckFrequency: 
+                  type: "integer"
+                flexget_host: 
+                  type: "string"
+                flexget_pass: 
+                  type: "string"
+                flexget_port: 
+                  type: "integer"
+                flexget_user: 
+                  type: "string"
+            com_kapture_url: 
+              type: "object"
+              properties: 
+                enabled: 
+                  type: "boolean"
+            com_piratebay: 
+              type: "object"
+              properties: 
+                enabled: 
+                  type: "boolean"
+            com_transmissionbt: 
+              type: "object"
+              properties: 
+                enabled: 
+                  type: "boolean"
+                transmission_host: 
+                  type: "string"
+                transmission_pass: 
+                  type: "string"
+                transmission_port: 
+                  type: "integer"
+                transmission_user: 
+                  type: "string"
+            com_youtube: 
+              type: "object"
+              properties: 
+                enabled: 
+                  type: "boolean"
+            info_showrss: 
+              type: "object"
+              properties: 
+                enabled: 
+                  type: "boolean"
+        system: 
+          type: "object"
+          properties: 
+            name: 
+              type: "string"
+        userInfo: 
+          type: "object"
+          properties: 
+            email: 
+              type: 
+                - "null"
+                - "string"
   basePath: "/api/v1"
   responses: 
     downloadResponse: 

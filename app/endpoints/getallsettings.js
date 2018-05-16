@@ -6,9 +6,3 @@
  */
 
 exports.handler = require('../api/settings/settings.controller').getSettings;
-
-
-// exports.handler = function getallsettings(req, res, next) {
-//   res.json({'getallsettings': true});
-//   next()
-// }

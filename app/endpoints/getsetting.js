@@ -4,7 +4,4 @@
  * GET: /api/v1/settings/{key}
  * 
  */
-exports.handler = function getsetting(req, res, next) {
-  res.send('getsetting')
-  next()
-}
+exports.handler = require('../api/settings/settings.controller').getSetting;

@@ -5,13 +5,14 @@ var config          = require('../../config/environment');
 
 
 
-// store settings for ansible
+// [v0] store setting
+// DEPRECATE
 exports.postSettings = function( req, res, next ) {
   try {
     config.setUserSetting( req.body );
     return res.status(200).send();
   } catch( err ) {
-    return res.status(500).json( err );
+    return next(err);
   }
 };
 
@@ -19,3 +20,23 @@ exports.postSettings = function( req, res, next ) {
 exports.getSettings = function( req, res, next ) {
   res.status(200).json( config.getUserSetting() );
 };
+
+exports.getSetting = function( req, res, next ) {
+  const val = config.getUserSetting(req.params.key);
+  if( val ) {
+    res.status(200).json( {'value': val} );
+  } else {
+    res.status(404).send();
+  }
+}
+
+// given a body of settings, update all settings to match that
+exports.putSettings = function( req, res, next ) {
+  return next('not yet implemented');
+}
+
+// given a body with a single (or muptiple) settings changed, change just those
+exports.patchSettings = function( req, res, next ) {
+  config.setUserSetting( req.body );
+  return res.status(202).send();;
+}

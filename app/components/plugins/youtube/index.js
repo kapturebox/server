@@ -19,7 +19,7 @@ var youtubeSearchToken = 'AIzaSyAlhhTxfbaIjaCHi4qs5rl95PtpmcRTZTA';
 
 function YoutubeSource( options ) {
   this.metadata = {
-    pluginId: 'com.youtube',                  // Unique ID of plugin
+    pluginId: 'com_youtube',                  // Unique ID of plugin
     pluginName: 'Youtube',                    // Display name of plugin
     pluginTypes: ['source','downloader'],     // 'source', 'downloader', 'player'
     sourceTypes: 'adhoc',                     // 'adhoc', 'continuous'

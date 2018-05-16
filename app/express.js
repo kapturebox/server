@@ -37,11 +37,24 @@ module.exports = function( app ) {
   // new swagger based url system
   require('./routes.v1')(app);
 
+  // send errors to logger
   app.use(
     winstonExpress.errorLogger({
       winstonInstance: config.logger,
       json: true
     })
   );
+
+  // error response handler to put responses in json
+  app.use(function (err, req, res, next) {
+    var response = {
+      error: {
+        message: err.toString(),
+        code: err.statusCode
+      }
+    };
+    res.status(err.statusCode || 500).json(response);
+    return next(err);
+  })
 
 };

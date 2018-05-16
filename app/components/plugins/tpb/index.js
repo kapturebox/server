@@ -28,7 +28,7 @@ SIZE_MULTIPLIERS.ZiB = ( SIZE_MULTIPLIERS.EiB * 1024 );
 
 var ThepiratebaySource = function( options ) {
   this.metadata = {
-    pluginId: 'com.piratebay',               // Unique ID of plugin
+    pluginId: 'com_piratebay',               // Unique ID of plugin
     pluginName: 'ThePirateBay',              // Display name of plugin
     pluginTypes: 'source',                    // 'source', 'downloader', 'player'
     sourceType: 'adhoc',                     // 'adhoc', 'continuous'

@@ -10,7 +10,7 @@ var KAT_JSON_URL = 'https://kat.cr/json.php';
 
 var KickassSource = function( options ) {
   this.metadata = {
-    pluginId: 'cr.kat',                  // Unique ID of plugin
+    pluginId: 'cr_kat',                  // Unique ID of plugin
     pluginName: 'Kickass',               // Display name of plugin
     pluginTypes: 'source',                // 'source', 'downloader', 'player'
     sourceType: 'adhoc',                 // 'adhoc', 'continuous'

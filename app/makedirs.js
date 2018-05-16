@@ -7,13 +7,14 @@ const _      = require('lodash');
 
 
 module.exports = function makeDirs( config ) {
+  const rootPath = config.getUserSetting('downloadPaths.root');
   var dirs = [
-    config.getUserSetting('rootDownloadPath'),
-    path.join( config.getUserSetting('rootDownloadPath'), config.getUserSetting('moviesPath') ),
-    path.join( config.getUserSetting('rootDownloadPath'), config.getUserSetting('showsPath') ),
-    path.join( config.getUserSetting('rootDownloadPath'), config.getUserSetting('musicPath') ),
-    path.join( config.getUserSetting('rootDownloadPath'), config.getUserSetting('photosPath') ),
-    path.join( config.getUserSetting('rootDownloadPath'), config.getUserSetting('defaultMediaPath') )
+    rootPath,
+    path.join( rootPath, config.getUserSetting('downloadPaths.movies') ),
+    path.join( rootPath, config.getUserSetting('downloadPaths.shows') ),
+    path.join( rootPath, config.getUserSetting('downloadPaths.music') ),
+    path.join( rootPath, config.getUserSetting('downloadPaths.photos') ),
+    path.join( rootPath, config.getUserSetting('downloadPaths.default') )
   ].map((d) => path.resolve(d));
 
   dirs.forEach(function(dir) {

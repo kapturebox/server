@@ -14,7 +14,7 @@ var Url           = require('url');
 
 function KaptureURLHandler( options ) {
   this.metadata = {
-    pluginId: 'com.kapture.url',                // Unique ID of plugin
+    pluginId: 'com_kapture_url',                // Unique ID of plugin
     pluginName: 'Kapture URL Handler',          // Display name of plugin
     pluginTypes: ['downloader'],                // 'source', 'downloader', 'player'
     sourceTypes: 'adhoc',                       // 'adhoc', 'continuous'

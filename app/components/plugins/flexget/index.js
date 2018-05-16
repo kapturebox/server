@@ -13,7 +13,7 @@ var FlexgetDownloader = function( options ) {
   var self = this;
 
   this.metadata = {
-    pluginId: 'com.flexget',                 // Unique ID of plugin
+    pluginId: 'com_flexget',                 // Unique ID of plugin
     pluginName: 'Flexget',                   // Display name of plugin
     pluginTypes: 'downloader',               // 'source', 'downloader', 'player'
     sourceTypes: 'continuous',               // 'adhoc', 'continuous'

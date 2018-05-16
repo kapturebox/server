@@ -13,7 +13,7 @@ var xml2js  = require('xml2json-light');
 
 var ShowRssSource = function( options ) {
   this.metadata = {
-    pluginId: 'info.showrss',                 // Unique ID of plugin
+    pluginId: 'info_showrss',                 // Unique ID of plugin
     pluginName: 'ShowRss',                    // Display name of plugin
     pluginTypes: ['source','series'],         // 'source', 'downloader', 'player'
     sourceType: 'continuous',                 // 'adhoc', 'continuous'

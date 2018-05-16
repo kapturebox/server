@@ -44,34 +44,42 @@ var all = {
 
   // some user setting stuff
   userSettingDefaults: {
-    systemname              : os.hostname(),
-    flexget_check_frequency : 15,
-    email                   : null,
-    rootDownloadPath        : path.join(process.env.KAPTURE_DOWNLOAD_PATH || '.' , 'downloads'), // /var/lib/kapture/
-    moviesPath              : 'movies',
-    showsPath               : 'tvshows',
-    musicPath               : 'music',
-    photosPath              : 'photos',
-    defaultMediaPath        : 'downloads',
+    system                  : {
+      name                  : os.hostname()
+    },
+    userInfo                : {
+      email                 : null
+    },
+    downloadPaths           : {
+      root                  : path.join(process.env.KAPTURE_DOWNLOAD_PATH || '.' , 'downloads'), // /var/lib/kapture/
+      movies                : 'movies',
+      shows                 : 'tvshows',
+      music                 : 'music',
+      photos                : 'photos',
+      default               : 'downloads'  
+    },
     plugins                 : {
-      'com.piratebay': {
+      'com_piratebay': {
         enabled: true
       },
-      'com.youtube': {
+      'com_youtube': {
         enabled: true
       },
-      'info.showrss': {
+      'info_showrss': {
         enabled: true
       },
-      'com.transmissionbt': {
+      'com_transmissionbt': {
         enabled: true,
         transmission_host: process.env.TRANSMISSION_HOST || 'transmission',
         transmission_port: process.env.TRANSMISSION_PORT || 9091,
         transmission_user: process.env.TRANSMISSION_USER || 'admin',
         transmission_pass: process.env.TRANSMISSION_PASS || 'password',
       },
-      'com.flexget': {
+      'com_flexget': {
         enabled: true,
+
+        flexgetCheckFrequency   : 15,
+
         flexget_host: process.env.FLEXGET_HOST || 'flexget',
         flexget_port: process.env.FLEXGET_PORT || 5050,
 
@@ -79,9 +87,10 @@ var all = {
         api_token:    process.env.FLEXGET_API_TOKEN || null,
 
         flexget_user: process.env.FLEXGET_USERNAME || 'flexget',
-        flexget_pass: process.env.FLEXGET_PASSWORD || 'mySuperPassword'
+        flexget_pass: process.env.FLEXGET_PASSWORD || 'mySuperPassword',
+
       },
-      'com.kapture.url': {
+      'com_kapture_url': {
         enabled: true
       }
     }
