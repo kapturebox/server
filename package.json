@@ -1,0 +1,51 @@
+{
+  "name": "kapture-server",
+  "version": "4.3.0",
+  "main": "app/app.js",
+  "scripts": {
+    "start": "NODE_ENV=development node app/app.js"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "body-parser": "^1.17.2",
+    "compression": "^1.7.0",
+    "datejs": "^1.0.0-rc3",
+    "debug": "^2.6.8",
+    "errorhandler": "^1.5.0",
+    "express": "^4.15.3",
+    "express-session": "^1.15.4",
+    "express-winston": "^2.4.0",
+    "lodash": "^4.17.4",
+    "method-override": "^2.3.9",
+    "node-persist": "^2.1.0",
+    "request": "^2.81.0",
+    "sanitize-filename": "^1.6.1",
+    "swagger-routes": "^1.7.0",
+    "thepiratebay": "^1.4.5",
+    "winston": "^2.3.1",
+    "xml2json-light": "^1.0.4",
+    "xmldom": "^0.1.27",
+    "xpath": "^0.0.24",
+    "yamljs": "^0.3.0",
+    "youtube-dl": "^1.11.1",
+    "youtube-sdk": "^0.2.0",
+    "youtube-search": "^1.0.10"
+  },
+  "devDependencies": {
+    "connect-livereload": "^0.6.0",
+    "gulp": "^3.9.1",
+    "gulp-live-server": "^0.0.31",
+    "gulp-run": "^1.7.1",
+    "gulp-watch": "^5.0.0",
+    "jit-grunt": "^0.10.0",
+    "jshint-stylish": "^2.2.1",
+    "regexp-quote": "0.0.0",
+    "requirejs": "^2.3.5",
+    "supertest": "^3.0.0",
+    "time-grunt": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=7.0.0"
+  },
+  "private": true
+}
