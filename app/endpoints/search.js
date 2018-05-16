@@ -8,7 +8,5 @@
  *   filter {string}
  *   
  */
-exports.handler = function search(req, res, next) {
-  res.send('search')
-  next()
-}
+
+exports.handler = require('../api/search/search.controller').search;

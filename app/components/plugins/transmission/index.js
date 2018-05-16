@@ -26,15 +26,17 @@ var TransmissionDownloader = function( options ) {
 
   this.logger.debug( '[TODO] this needs to be fixed, should not be instantiated every time we need to use transmission' );
 
+  // TODO: optimize this messyness
+  // TODO: add a path.resolve to the values below
   this.mediaTypePathMap = {
-    'movie'  : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('moviesPath') ),
-    'video'  : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('moviesPath') ),
-    'tvshow' : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('showsPath') ),
-    'audio'  : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('musicPath') ),
-    'music'  : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('musicPath') ),
-    'photos' : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('photosPath') ),
-    'other'  : path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('defaultMediaPath') )
-  }
+    'movie'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
+    'video'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
+    'tvshow' : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows') ),
+    'audio'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
+    'music'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
+    'photos' : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
+    'other'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.default') )
+  };
 
   return this;
 }

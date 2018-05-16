@@ -1,17 +1,23 @@
 'use strict';
 
-var _ = require('lodash');
-var search = require('./search');
-var config = require('../../config/environment')
+const _ = require('lodash');
+const search = require('./search');
+const config = require('../../config/environment');
+const filterResults = require('../../components/results_filter');
 
 
 // Get list of searchs
 exports.search = function( req, res, next ) {
-  var query = req.query.q;
-  config.logger.info( 'search query: %s', query );
+  const query = req.query.q;
+  const filter = req.query.filter;
+  config.logger.info( 'search query: %s, filtering on %s', query, filter );
 
   search( query )
     .then(function( results ) {
+      if( filter ) {
+        results = filterResults(results, filter);
+      }
+      
       return res.status(200).json( results );
     })
     .catch(function( err ) {
