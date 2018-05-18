@@ -122,7 +122,7 @@ YoutubeSource.prototype.transformDownloadResult = function( result ) {
     size:              result.size,
     thumbnail:         result.thumbnails[0].url || null,
     filename:          result._filename,
-    fullPath:          path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('defaultMediaPath'), sanitize( result._filename ) )
+    fullPath:          path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.default'), sanitize( result._filename ) )
    ,source_info:       result
   };
 

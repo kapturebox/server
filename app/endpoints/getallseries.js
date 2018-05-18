@@ -4,7 +4,5 @@
  * GET: /api/v1/series
  * 
  */
-exports.handler = function getallseries(req, res, next) {
-  res.send('getallseries')
-  next()
-}
+
+exports.handler = require('../api/series/series.controller').index

@@ -55,6 +55,11 @@ module.exports = function( app ) {
     };
     res.status(err.statusCode || 500).json(response);
     return next(err);
+  });
+
+  // if none of the aboe match, throw a 404
+  app.use(function(req, res, next) {
+    return res.status(404).send();
   })
 
 };

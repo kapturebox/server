@@ -2,108 +2,108 @@
 
 var Promise = require('bluebird');
 var request = require('request');
-var _       = require('lodash');
-var util    = require('util');
-var path    = require('path');
+var _ = require('lodash');
+var util = require('util');
+var path = require('path');
 
 var xpath = require('xpath');
-var dom   = require('xmldom').DOMParser;
-var xml2js  = require('xml2json-light');
+var dom = require('xmldom').DOMParser;
+var xml2js = require('xml2json-light');
 
 
-var ShowRssSource = function( options ) {
+var ShowRssSource = function (options) {
   this.metadata = {
     pluginId: 'info_showrss',                 // Unique ID of plugin
     pluginName: 'ShowRss',                    // Display name of plugin
-    pluginTypes: ['source','series'],         // 'source', 'downloader', 'player'
+    pluginTypes: ['source', 'series'],         // 'source', 'downloader', 'player'
     sourceType: 'continuous',                 // 'adhoc', 'continuous'
-    requires: ['com.flexget','com.transmissionbt'],  // this plugin requires the flexget plugin
+    requires: ['com.flexget', 'com.transmissionbt'],  // this plugin requires the flexget plugin
     link: 'http://showrss.info/',             // Link to provider site
     description: 'Updated feed of TV shows'   // Description of plugin provider
   };
 
-  ShowRssSource.super_.apply( this, arguments );
+  ShowRssSource.super_.apply(this, arguments);
 
   return this;
 }
 
 
 
-ShowRssSource.prototype.search = function( query ) {
-  var self        = this;
-  var SHOWS_URL   = 'http://showrss.info/browse';
+ShowRssSource.prototype.search = function (query) {
+  var self = this;
+  var SHOWS_URL = 'http://showrss.info/browse';
   var SHOWS_XPATH = '//*[@id="showselector"]/option';
 
-  if( _.isEmpty( query ) ) {
-    return Promise.reject( new Error('no query string'));
+  if (_.isEmpty(query)) {
+    return Promise.reject('no query string in search');
   }
 
-  return new Promise( function( resolve, reject ) {
+  return new Promise(function (resolve, reject) {
     request({
       url: SHOWS_URL
-    }, function( err, resp, body ) {
-      if( err ) return reject(err);
+    }, function (err, resp, body) {
+      if (err) return reject(err);
 
       try {
-        var doc = new dom({errorHandler: function(o) {}}).parseFromString( body );
-        var shownames_xml = xpath.select( SHOWS_XPATH, doc );
-      } catch(err) {
-        return reject( new Error('cant parse showrss xml', err) );
+        var doc = new dom({ errorHandler: function (o) { } }).parseFromString(body);
+        var shownames_xml = xpath.select(SHOWS_XPATH, doc);
+      } catch (err) {
+        return reject(`cant parse showrss xml ${err}`);
       }
 
-      var shownames = _.filter( shownames_xml, function( e ){
-        return e.firstChild !== undefined; 
-      }).map(function( e ) {
+      var shownames = _.filter(shownames_xml, function (e) {
+        return e.firstChild !== undefined;
+      }).map(function (e) {
         return {
-          sourceId:          self.metadata.pluginId,
-          sourceName:        self.metadata.pluginName,
-          score:             self.calculateScore(e),
+          sourceId: self.metadata.pluginId,
+          sourceName: self.metadata.pluginName,
+          score: self.calculateScore(e),
           downloadMechanism: 'flexget',
-          flexgetModel:      'showrss',
-          mediaType:         'series',
-          id:                e.getAttribute('value'),
-          category:          'TV Shows',
-          size:              'N/A',
-          title:             e.firstChild.data
+          flexgetModel: 'showrss',
+          mediaType: 'series',
+          id: e.getAttribute('value'),
+          category: 'TV Shows',
+          size: 'N/A',
+          title: e.firstChild.data
         };
       });
 
       // gives us just what was searched for
-      var shownames_filtered = _.filter( shownames, function( obj ) {
+      var shownames_filtered = _.filter(shownames, function (obj) {
         return obj
-              && _.isString( obj.title )
-              && obj.title.toLowerCase().indexOf( query.toLowerCase() ) > -1;
+          && _.isString(obj.title)
+          && obj.title.toLowerCase().indexOf(query.toLowerCase()) > -1;
       });
 
-      self.logger.info( '[showrss] results: ', shownames_filtered.length );
-      resolve( shownames_filtered );
+      self.logger.info('[showrss] results: ', shownames_filtered.length);
+      resolve(shownames_filtered);
     })
   });
 };
 
 
 
-ShowRssSource.prototype.calculateScore = function( result ) {
+ShowRssSource.prototype.calculateScore = function (result) {
   return 1.0 / 10;
 }
 
-ShowRssSource.prototype.status = function() {
+ShowRssSource.prototype.status = function () {
   return Promise.resolve([]);  // uses torrent downloader and flexget
 }
 
-ShowRssSource.prototype.download = function( item ) {
-  return this.add( item );
+ShowRssSource.prototype.download = function (item) {
+  return this.add(item);
 };
 
-ShowRssSource.prototype.remove = function( item ) {
+ShowRssSource.prototype.remove = function (item) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     try {
-      self.removeState( item.id );
-      resolve( item );
-    } catch ( err ) {
-      reject( new Error( err.toString() ));
-    }    
+      self.removeState(item.id);
+      resolve(item);
+    } catch (err) {
+      reject(new Error(err.toString()));
+    }
   });
 }
 
@@ -119,102 +119,110 @@ const SHOW_HISTORY_DATA_URL = 'https://showrss.info/show/%d.rss';
 const UPCOMING_EPISODES_URL = 'https://showrss.info/show/schedule/%d.rss';
 
 
-ShowRssSource.prototype.info = function( showId ) {
+ShowRssSource.prototype.info = function (showId) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     request({
-      url: util.format( SHOW_HISTORY_DATA_URL, showId )
-    }, function( err, resp, body ) {
-      if( err ) {
-        return reject(new Error( err.toString() ));
+      url: util.format(SHOW_HISTORY_DATA_URL, showId)
+    }, function (err, resp, body) {
+      if (err) {
+        return reject(new Error(err.toString()));
       }
 
       try {
-        var ugly_items = xml2js.xml2json( body ).rss.channel;
-        var items      = ugly_items['item'];
+        var ugly_items = xml2js.xml2json(body).rss.channel;
+        var items = ugly_items['item'];
 
-        if( ! items ) {
-          return reject(new Error( 'unable to find any entries in rss feed' ));
+        if (!items) {
+          return reject('unable to find any entries in rss feed');
         }
 
-        var transformed = items.map( function(e) {
+        var transformed = items.map(function (e) {
           return {
-            title:        e['title'],
-            hashString:   e['showrss:info_hash'],
-            uploaded:     e['pubDate'],
-            rawTitle:     e['showrss:rawtitle'],
-            magnetUrl:    e['link']
+            title: e['title'],
+            hashString: e['showrss:info_hash'],
+            uploaded: e['pubDate'],
+            rawTitle: e['showrss:rawtitle'],
+            magnetUrl: e['link']
           };
         });
 
-        resolve( transformed );
-      } catch( err ) {
-        return reject(new Error( 'cant parse showrss xml' ));
+        resolve(transformed);
+      } catch (err) {
+        return reject(`cant parse showrss xml: ${err}`);
       }
     });
   });
 }
 
-ShowRssSource.prototype.add = function( item ) {
+ShowRssSource.prototype.add = function (item) {
   var self = this;
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     try {
-      self.setState( item.id, item );
-      resolve( item );
-    } catch ( err ) {
-      reject( new Error( err.toString() ));      
+      self.setState(item.id, item);
+      resolve(item);
+    } catch (err) {
+      reject(new Error(err.toString()));
     }
   });
-
 }
 
-ShowRssSource.prototype.getEnabledSeriesNames = function() {
-  return this.getState().map(function(e){
+ShowRssSource.prototype.addEntryId = function (entryId) {
+  var self = this;
+  return self.info(entryId)
+    .then(function (info) {
+      self.setState(entryId, info);
+      return info
+    });
+}
+
+ShowRssSource.prototype.getEnabledSeriesNames = function () {
+  return this.getState().map(function (e) {
     return e.title;
   });
 }
 
-ShowRssSource.prototype.getEnabledSeriesIds = function() {
-  return this.getState().map(function(e){
+ShowRssSource.prototype.getEnabledSeriesIds = function () {
+  return this.getState().map(function (e) {
     return e.id;
   });
 }
 
 
-ShowRssSource.prototype.getEnabledSeries = function() {
+ShowRssSource.prototype.getEnabledSeries = function () {
   return this.getState();
 }
 
-ShowRssSource.prototype.flexgetTemplateModel = function() {
-  var transmissionConfig = this.pluginHandler.getPlugin( 'com.transmissionbt' );
+ShowRssSource.prototype.flexgetTemplateModel = function () {
+  var transmissionConfig = this.pluginHandler.getPlugin('com.transmissionbt');
 
   return {
     showrss: {
       all_series: true,
       transmission: {
-        host:     transmissionConfig.get( 'transmission_host' ) || 'localhost',
-        port:     parseInt( transmissionConfig.get( 'transmission_port' ) || 9091 ),
-        username: transmissionConfig.get( 'transmission_user' ),
-        password: transmissionConfig.get( 'transmission_pass' ),
-        path:     path.join( this.config.getUserSetting('rootDownloadPath'), this.config.getUserSetting('showsPath') )
+        host: transmissionConfig.get('transmission_host') || 'localhost',
+        port: parseInt(transmissionConfig.get('transmission_port') || 9091),
+        username: transmissionConfig.get('transmission_user'),
+        password: transmissionConfig.get('transmission_pass'),
+        path: path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows'))
       }
     }
   }
 }
 
 
-ShowRssSource.prototype.flexgetTaskModel = function() {
-  var self               = this;
-  var seriesIds          = self.getEnabledSeriesIds();
-  var taskObject         = {};
+ShowRssSource.prototype.flexgetTaskModel = function () {
+  var self = this;
+  var seriesIds = self.getEnabledSeriesIds();
+  var taskObject = {};
 
-  if( _.isEmpty( seriesIds ) ) {
-    return {noop:{ manual: true }};
+  if (_.isEmpty(seriesIds)) {
+    return { noop: { manual: true } };
   }
 
-  seriesIds.forEach(function( id ) {
-    taskObject[ util.format('showRssId%d', id) ] = {
-      rss: util.format( SHOW_HISTORY_DATA_URL, id ),
+  seriesIds.forEach(function (id) {
+    taskObject[util.format('showRssId%d', id)] = {
+      rss: util.format(SHOW_HISTORY_DATA_URL, id),
       template: 'showrss'
     };
   });

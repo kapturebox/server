@@ -206,8 +206,8 @@ KaptureURLHandler.prototype.updateDownloadState = function( result ) {
 
 KaptureURLHandler.prototype.getDestPath = function( url, mediaPathSetting ) {
   return path.join( 
-    this.config.getUserSetting( 'rootDownloadPath' ), 
-    this.config.getUserSetting( mediaPathSetting || 'defaultMediaPath' ),   
+    this.config.getUserSetting( 'downloadPaths.root' ), 
+    this.config.getUserSetting( mediaPathSetting || 'downloadPaths.default' ),   
     this.getFilename( url )
   );
 }
@@ -238,15 +238,15 @@ KaptureURLHandler.prototype.handleMediaType = function( url, head ) {
 
 KaptureURLHandler.prototype.assumeDownloadPathFromCtype = function( contentType ) {
   if( /^image\/.*/.test( contentType ) ) {
-    return 'photosPath';
+    return 'downloadPaths.photos';
   } else if( /^audio\/.*/.test( contentType ) ) {
-    return 'musicPath';
+    return 'downloadPaths.music';
   } else if( /^video\/.*/.test( contentType ) ) {
-    return 'moviesPath';
+    return 'downloadPaths.movies';
   } else if( /^(text|application)\/.*/.test( contentType ) ) { 
-    return 'defaultMediaPath';
+    return 'downloadPaths.default';
   } else { 
-    return 'defaultMediaPath';
+    return 'downloadPaths.default';
   } 
 }
 
