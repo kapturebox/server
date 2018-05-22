@@ -6,7 +6,6 @@ var util    = require('util');
 var path    = require('path');
 var config  = require('../../config/environment');
 
-var settingsFile     = config.settingsFileStore;
 var stateStorePath   = config.pluginStateStore;
 
 
@@ -19,7 +18,7 @@ var Plugin = function() {
   try {
     this.stateStore = persist.create({
       dir: path.join( stateStorePath, this.metadata.pluginId || 'base' ),
-      interval: 1000 // 2s save to disk interval
+      interval: 1000 // 1s save to disk interval
     });
 
     this.stateStore.initSync();

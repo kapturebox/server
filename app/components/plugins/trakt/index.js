@@ -45,19 +45,6 @@ const typeMappings = [{
   kaptureAggregateType: 'series',
   traktType: 'shows',
   traktNonPlural: 'show'
-  // TODO: either remove or pull more stuff?
-  // }, {
-  //   kaptureType: 'music',
-  //   traktType: '',
-  //   traktNonPlural: ''
-  // }, {
-  //   kaptureType: 'photos',
-  //   traktType: '',
-  //   traktNonPlural: ''
-  // }, {
-  //   kaptureType: 'other',
-  //   traktType: '',
-  //   traktNonPlural: ''
 }];
 
 

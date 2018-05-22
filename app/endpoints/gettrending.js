@@ -9,9 +9,13 @@
  */
 
 const Promise = require('bluebird');
+const _ = require('lodash');
+
 const plugins = require('../components/plugin_handler');
+const filterResults = require('../components/results_filter');
 
 exports.handler = function gettrending(req, res, next) {
+  const filter = req.query.filter;
   var trendingResults;
 
   try {
@@ -29,6 +33,16 @@ exports.handler = function gettrending(req, res, next) {
   }
 
   Promise.all(trendingResults)
-    .then(result => res.status(200).json(result))
+    .then(mergeResults)
+    .then((results) => filterResults(results, filter))
+    .then((results) => res.status(200).json(results))
     .catch(next)
+}
+
+// We'll get an array of results from each plugin .. this will merge it all into one
+// big resultant object
+function mergeResults(results) {
+  return results.reduce((last, cur, idx) => {
+    return _.merge(last, cur);
+  }, {})
 }

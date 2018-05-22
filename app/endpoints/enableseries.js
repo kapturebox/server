@@ -8,7 +8,7 @@
  *   entryId {string} ID of series in question that you want added to autokapture.
  *   
  */
-var plugins = require('../components/plugin_handler');
+const plugins = require('../components/plugin_handler');
 
 // TODO: this is broken still, need to redefine how we get/store the media info
 // since we are changing the interface, we copy and redefine

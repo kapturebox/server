@@ -114,8 +114,6 @@ function requiredProcessEnv(name) {
 
 
 function getUserSetting( key ) {
-  var self = this;
-
   try {
     var json_obj = YAML.load( this.settingsFileStore );
   } catch( err ) {
@@ -132,7 +130,7 @@ function getUserSetting( key ) {
   if( ! key ) {
     return json_obj;
   } else {
-    if( typeof( key ) == 'string' && _.has( json_obj, key ) ) {
+    if( typeof( key ) === 'string' && _.has( json_obj, key ) ) {
       return _.get( json_obj, key );
     } else {
       return null;
@@ -142,20 +140,23 @@ function getUserSetting( key ) {
 
 function setUserSetting( key, value ) {
   var root = this.getUserSetting();
-  var orig = this.getUserSetting(key);
-  var toSave = value;
+  var toSave = root;
 
   if( typeof( key ) === 'object' ) {
-    toSave = _.merge( orig, value );
+    toSave = _.merge( root, value );
   } else if( typeof( key ) === 'string' ) {
-    toSave = _.set( orig, key, value );
+    toSave = _.set( root, key, value );
+  } else {
+    throw new Error('cant change setting - need valid key in proper format (string or object)');
   }
 
   this.logger.debug( 'writing setting: %s = %s', key, 
-    typeof toSave === 'object' ? JSON.stringify(toSave, 4) : toSave 
+    typeof toSave === 'object' ? JSON.stringify(toSave, null, 4) : toSave 
   );
 
-  fs.writeFile( this.settingsFileStore, 
+  // save entire object to disk
+  fs.writeFileSync( 
+    this.settingsFileStore, 
     YAML.stringify( toSave, 8 ), 
     function( err ) {
       if( err ) {

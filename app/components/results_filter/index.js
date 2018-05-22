@@ -10,12 +10,37 @@ const _ = require('lodash');
  *      `key1:value1;key2:value2` that objects must match
  */
 module.exports = function resultsFilter(objects, filterStr) {
+  if( ! filterStr ) {
+    return objects;
+  }
+
   var filterObj = {};
   
   filterStr.split(';').forEach((d) => {
-    const res = d.split(':');
-    filterObj[res[0]] = res[1];
+    const splitted = d.split(':');
+
+    // this will convert strings to int, if possible.  clearly wont work with floats
+    // TODO: handle floats too
+    val = isNaN(parseInt(splitted[1])) ? splitted[1] : parseInt(splitted[1]);
+    
+    filterObj[splitted[0]] = val;
   });
 
-  return _.filter(objects, filterObj)
+  console.log(filterObj);
+
+  switch(typeof(objects)) {
+    case 'array':
+      return _.filter(objects, filterObj)
+    case 'object':  // allows for (1 level) deep object filtering
+      var result = {};
+
+      Object.keys(objects).forEach((k) => {
+        result[k] = _.filter(objects[k], filterObj);
+      });
+
+      return result;
+    default:
+      return objects;
+
+  }
 }
