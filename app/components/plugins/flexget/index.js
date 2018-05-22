@@ -18,7 +18,7 @@ var FlexgetDownloader = function( options ) {
     pluginTypes: 'downloader',               // 'source', 'downloader', 'player'
     sourceTypes: 'continuous',               // 'adhoc', 'continuous'
     link: 'https://transmissionbt.com',      // Link to provider site
-    requires: ['com.transmissionbt'],        // Dependency plugin
+    requires: ['com_transmissionbt'],        // Dependency plugin
     downloadProviders: 'flexget',            // if plugin can also download, what
                                              // downloadMechanism can it download?
     description: 'Full featured continuous downloader' // Description of plugin provider

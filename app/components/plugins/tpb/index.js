@@ -30,7 +30,7 @@ var ThepiratebaySource = function( options ) {
   this.metadata = {
     pluginId: 'com_piratebay',               // Unique ID of plugin
     pluginName: 'ThePirateBay',              // Display name of plugin
-    pluginTypes: 'source',                    // 'source', 'downloader', 'player'
+    pluginTypes: 'source',                   // 'source', 'downloader', 'player'
     sourceType: 'adhoc',                     // 'adhoc', 'continuous'
     link: 'http://thepiratebay.se',          // Link to provider site
     description: 'General torrent site'      // Description of plugin provider

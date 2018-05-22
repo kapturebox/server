@@ -17,7 +17,7 @@ var ShowRssSource = function (options) {
     pluginName: 'ShowRss',                    // Display name of plugin
     pluginTypes: ['source', 'series'],         // 'source', 'downloader', 'player'
     sourceType: 'continuous',                 // 'adhoc', 'continuous'
-    requires: ['com.flexget', 'com.transmissionbt'],  // this plugin requires the flexget plugin
+    requires: ['com_flexget', 'com_transmissionbt'],  // this plugin requires the flexget plugin
     link: 'http://showrss.info/',             // Link to provider site
     description: 'Updated feed of TV shows'   // Description of plugin provider
   };
@@ -194,7 +194,7 @@ ShowRssSource.prototype.getEnabledSeries = function () {
 }
 
 ShowRssSource.prototype.flexgetTemplateModel = function () {
-  var transmissionConfig = this.pluginHandler.getPlugin('com.transmissionbt');
+  var transmissionConfig = this.pluginHandler.getPlugin('com_transmissionbt');
 
   return {
     showrss: {

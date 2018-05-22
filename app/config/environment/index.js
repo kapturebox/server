@@ -121,7 +121,10 @@ function getUserSetting( key ) {
   } catch( err ) {
     this.logger.warn( 'cant read settings file, setting defaults:', this.userSettingDefaults );
 
-    fs.writeFileSync( this.settingsFileStore, YAML.stringify( this.userSettingDefaults, 8 ));
+    fs.writeFileSync( 
+      this.settingsFileStore, 
+      YAML.stringify( this.userSettingDefaults, 8 )
+    );
 
     return _.get( this.userSettingDefaults, key );
   }
@@ -138,25 +141,27 @@ function getUserSetting( key ) {
 };
 
 function setUserSetting( key, value ) {
-  var orig = this.getUserSetting();
-  var toSave = orig;
-
-  this.logger.debug( 'setting: %s = %s', key, value || 'obj' );
+  var root = this.getUserSetting();
+  var orig = this.getUserSetting(key);
+  var toSave = value;
 
   if( typeof( key ) === 'object' ) {
-    this.logger.debug( 'merging obj: ', key, orig );
-    toSave = _.merge( orig, key );
+    toSave = _.merge( orig, value );
   } else if( typeof( key ) === 'string' ) {
     toSave = _.set( orig, key, value );
   }
 
-  this.logger.debug( 'writing setting:', toSave );
+  this.logger.debug( 'writing setting: %s = %s', key, 
+    typeof toSave === 'object' ? JSON.stringify(toSave, 4) : toSave 
+  );
 
-  fs.writeFile( this.settingsFileStore, YAML.stringify( toSave, 8 ), function( err ) {
-    if( err ) {
-      this.logger.warn( 'cant save user settings file: ', err );
-      throw new Error( err );
-    }
+  fs.writeFile( this.settingsFileStore, 
+    YAML.stringify( toSave, 8 ), 
+    function( err ) {
+      if( err ) {
+        this.logger.warn( 'cant save user settings file: ', err );
+        throw new Error( err );
+      }
   });
 }
 

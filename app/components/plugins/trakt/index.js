@@ -2,11 +2,33 @@ const Promise = require('bluebird');
 const util = require('util');
 const _ = require('lodash');
 const request = require('request');
-const clientId = 'fe722213d0c097ed33e320d28b3fca53edcd66b6ca118ea29bd60d908b705b88';
 
+// TODO: put into settings
+const clientId = 'fe722213d0c097ed33e320d28b3fca53edcd66b6ca118ea29bd60d908b705b88';
 const sourceId = 'trakt';
 const traktAdditionalInfoUrl = 'https://trakt.tv/%s/%s'  // 1: type, 2: slug
 
+
+
+var TraktTrending = function( options ) {
+  this.metadata = {
+    pluginId: 'tv_trakt',                  // Unique ID of plugin
+    pluginName: 'Trakt',                   // Display name of plugin
+    pluginTypes: 'trending',               // 'source', 'downloader', 'player', 'trending'
+    sourceType: 'adhoc',                   // 'adhoc', 'continuous'
+    link: 'https://trakt.tv',              // Link to provider site
+    // Description of plugin provider
+    description: 'Provides various information about media sources'
+  };
+
+  this.defaultSettings = {
+    enabled: true
+  };
+  
+  TraktTrending.super_.apply( this, arguments );
+
+  return this;
+}
 
 
 
@@ -39,6 +61,58 @@ const typeMappings = [{
 }];
 
 
+
+/**
+ * Main entrypoint to pull down all trending data in the format 
+ * kapture expects
+ */
+TraktTrending.prototype.trending = function trending() {
+  return Promise
+    .all(typeMappings.map(fetchTrendingTypeObj))
+    .then(_.flattenDeep)
+    .then((elements) => _.groupBy(elements, 'type'))
+    .then(renameSingularToAggregate);
+}
+
+
+
+/**
+ *  Returns information about the 'sourceId' defined ID in the format that 
+ *  kapture desires. 
+ * 
+ *  TODO: define that output format better
+ * 
+ * @param {String,Integer} id   can be either be a trakt id or a slug.  
+ *                              however according to kapture, this needs to be
+ *                              the id field
+ */
+TraktTrending.prototype.trendingInfo = function trendingInfo(id) {
+  return new Promise(function (resolve, reject) {
+    request({
+      method: 'GET',
+      url: util.format('https://api.trakt.tv/shows/%s?extended=full', id),
+      headers: {
+        'Content-Type': 'application/json',
+        'trakt-api-version': '2',
+        'trakt-api-key': clientId
+      },
+      json: true
+    }, function (err, response, body) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(body);
+      }
+    });
+  });
+}
+
+
+
+
+/**************************
+ * HELPER FUNCTIONS
+ **************************/
 
 
 /**
@@ -95,17 +169,7 @@ function renameSingularToAggregate(obj) {
   return ret
 }
 
-/**
- * Main entrypoint to pull down all trending data in the format 
- * kapture expects
- */
-function trending() {
-  return Promise
-    .all(typeMappings.map(fetchTrendingTypeObj))
-    .then(_.flattenDeep)
-    .then((elements) => _.groupBy(elements, 'type'))
-    .then(renameSingularToAggregate);
-}
+
 
 /**
  * Given a typeObj, will return a promise that will return the proper data
@@ -134,45 +198,22 @@ function fetchTrendingTypeObj(typeObj) {
   })
 }
 
-/**
- *  Returns information about the 'sourceId' defined ID in the format that 
- *  kapture desires. 
- * 
- *  TODO: define that output format better
- * 
- * @param {String,Integer} id   can be either be a trakt id or a slug.  
- *                              however according to kapture, this needs to be
- *                              the id field
- */
-function details(id) {
-  return new Promise(function (resolve, reject) {
-    request({
-      method: 'GET',
-      url: util.format('https://api.trakt.tv/shows/%s?extended=full', id),
-      headers: {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': clientId
-      },
-      json: true
-    }, function (err, response, body) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(body);
-      }
-    });
-  });
-}
 
+module.exports = TraktTrending;
 
 /** for running this file manually */
-(function run() {
-  trending()
-    .then(console.log)
-    .catch(console.log);
+if (require.main === module) {
+  (function run() {
+    const base = require('../../plugin_handler/plugin_base');
+    util.inherits( TraktTrending, base );
+    const t = new TraktTrending();
 
-  details(60300)
-    .then(console.log)
-    .catch(console.log);
-})();
+    t.trending()
+      .then(console.log)
+      .catch(console.log);
+  
+    t.trendingInfo(60300)
+      .then(console.log)
+      .catch(console.log);
+  })();
+}

@@ -45,6 +45,13 @@ module.exports = {
     });
   },
 
+
+  getEnabledPluginsOfType: function(pluginType) {
+    return _.filter( this.getEnabledPlugins(), function(p) {
+      return _.includes( p.metadata.pluginTypes, pluginType );
+    });    
+  },
+
   // gets first download provider that matches specific mechanism
   getDownloadMechanismProvider: function( downloadMechanism ) {
     return _.find( this.getEnabledPlugins(), function(p) {
@@ -54,22 +61,17 @@ module.exports = {
   },
 
   getEnabledDownloaders: function() {
-    return _.filter( this.getEnabledPlugins(), function( p ) {
-      return _.includes( p.metadata.pluginTypes, 'downloader' );
-    });
+    return this.getEnabledPluginsOfType('downloader');
   },
 
   getEnabledSources: function() {
-    return _.filter( this.getEnabledPlugins(), function(p) {
-      return _.includes( p.metadata.pluginTypes, 'source' );
-    });
+    return this.getEnabledPluginsOfType('source');
   },
 
   getEnabledSeriesProviders: function() {
-    return _.filter( this.getEnabledPlugins(), function(p) {
-      return _.includes( p.metadata.pluginTypes, 'series' );
-    });    
-  }
+    return this.getEnabledPluginsOfType('series');
+  },
+
 
   
 }

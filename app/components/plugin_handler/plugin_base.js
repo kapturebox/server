@@ -10,19 +10,26 @@ var settingsFile     = config.settingsFileStore;
 var stateStorePath   = config.pluginStateStore;
 
 
-
+// constructor function for all plugins (After metadata has been set)
 var Plugin = function() {
-  this.config   = config;
-  this.logger   = config.logger;
+  this.config    = config;
+  this.logger    = config.logger;
+  this.configKey = 'plugins[\'' + this.metadata.pluginId + '\']';
 
   try {
     this.stateStore = persist.create({
       dir: path.join( stateStorePath, this.metadata.pluginId || 'base' ),
       interval: 1000 // 2s save to disk interval
     });
+
     this.stateStore.initSync();
   } catch( err ) {
     this.logger.error( 'unable to init state store: %s', err.toString() );
+  }
+
+  // init settings if not already present
+  if( ! this.config.getUserSetting(this.configKey) ) {
+    this.config.setUserSetting(this.configKey, this.defaultSettings || {});
   }
 
   return this;
@@ -30,20 +37,19 @@ var Plugin = function() {
 
 
 Plugin.prototype.getAllSettings = function( ) {
-  var userKey = 'plugins[\'' + this.metadata.pluginId + '\']';
-  return this.config.getUserSetting( userKey );
+  return this.config.getUserSetting( this.configKey );
 }
 
 
 Plugin.prototype.get = function( key ) {
-  var userKey = 'plugins[\'' + this.metadata.pluginId + '\'].' + key;
+  const userKey = this.configKey + '.' + key;
   return this.config.getUserSetting( userKey );
 }
 
 
 
 Plugin.prototype.set = function( key, value ) {
-  var userKey = 'plugins[\'' + this.metadata.pluginId + '\'].' + key;
+  const userKey = this.configKey + '.' + key;
   return this.config.setUserSetting( userKey, value );
 }
 
