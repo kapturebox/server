@@ -22,11 +22,9 @@ module.exports = function resultsFilter(objects, filterStr) {
     // this will convert strings to int, if possible.  clearly wont work with floats
     // TODO: handle floats too
     val = isNaN(parseInt(splitted[1])) ? splitted[1] : parseInt(splitted[1]);
-    
+
     filterObj[splitted[0]] = val;
   });
-
-  console.log(filterObj);
 
   switch(typeof(objects)) {
     case 'array':

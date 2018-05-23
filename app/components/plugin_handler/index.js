@@ -38,11 +38,19 @@ module.exports = {
   },
 
   getPlugin: function( pluginId ) {
-    return _.find( this.getAllPlugins(), {
+    var result = _.find( this.getAllPlugins(), {
       metadata: {
         pluginId: pluginId
       }
     });
+
+    if( ! result ) {
+      let err = new Error(`no plugin found matching: ${pluginId}`);
+      err.statusCode = 409;
+      throw err;
+    }
+
+    return result;
   },
 
 

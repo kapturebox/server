@@ -55,10 +55,10 @@ const typeMappings = [{
  */
 TraktTrending.prototype.trending = function trending() {
   return Promise
-    .all(typeMappings.map(fetchTrendingTypeObj))
+    .all(typeMappings.map(this.fetchTrendingTypeObj.bind(this)))
     .then(_.flattenDeep)
     .then((elements) => _.groupBy(elements, 'type'))
-    .then(renameSingularToAggregate);
+    .then(this.renameSingularToAggregate.bind(this));
 }
 
 
@@ -74,10 +74,21 @@ TraktTrending.prototype.trending = function trending() {
  *                              the id field
  */
 TraktTrending.prototype.trendingInfo = function trendingInfo(id) {
+  const type = id.split('-')[0];
+  const realId = id.split('-')[1];
+
+  if( ! realId.match(/^[0-9]+$/) || ! type.match(/^[a-z]+$/) ) {
+    let err = new Error(`invalid id provided: ${id}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const url = util.format('https://api.trakt.tv/%s/%s?extended=full', type, realId);
+
   return new Promise(function (resolve, reject) {
     request({
       method: 'GET',
-      url: util.format('https://api.trakt.tv/shows/%s?extended=full', id),
+      url: url,
       headers: {
         'Content-Type': 'application/json',
         'trakt-api-version': '2',
@@ -127,12 +138,14 @@ TraktTrending.prototype.trendingInfo = function trendingInfo(id) {
  * @param {Object} typeObj   a type object that describes mappings between
  *                           trakt and kapture
  */
-function formatEntries(entries, typeObj) {
+TraktTrending.prototype.formatEntries = function formatEntries(entries, typeObj) {
+  var self = this;
+
   return entries.map((e) => {
     return {
       score: e.watchers,
-      sourceId: sourceId,
-      id: e[typeObj.traktNonPlural].ids.trakt,
+      sourceId: self.metadata.pluginId,
+      id: `${typeObj.traktType}-${e[typeObj.traktNonPlural].ids.trakt}`,
       type: typeObj.kaptureType,
       title: e[typeObj.traktNonPlural].title,
       slug: e[typeObj.traktNonPlural].ids.slug,
@@ -142,15 +155,16 @@ function formatEntries(entries, typeObj) {
 }
 
 /** some helper functions to properly map things */
-function getAggregateTypeFromSingular(typeStr) {
+TraktTrending.prototype.getAggregateTypeFromSingular = function getAggregateTypeFromSingular(typeStr) {
   return _.find(typeMappings, { kaptureType: typeStr }).kaptureAggregateType;
 }
 
-function renameSingularToAggregate(obj) {
+TraktTrending.prototype.renameSingularToAggregate = function renameSingularToAggregate(obj) {
   var ret = {};
+  var self = this;
 
   Object.keys(obj).forEach((k) => {
-    ret[getAggregateTypeFromSingular(k)] = obj[k];
+    ret[self.getAggregateTypeFromSingular(k)] = obj[k];
   });
 
   return ret
@@ -164,7 +178,9 @@ function renameSingularToAggregate(obj) {
  * 
  * @param {Object} typeObj  the kapture/trakt mapping object
  */
-function fetchTrendingTypeObj(typeObj) {
+TraktTrending.prototype.fetchTrendingTypeObj = function fetchTrendingTypeObj(typeObj) {
+  const self = this;
+
   return new Promise(function (resolve, reject) {
     request({
       method: 'GET',
@@ -179,7 +195,7 @@ function fetchTrendingTypeObj(typeObj) {
       if (err) {
         reject(err);
       } else {
-        resolve(formatEntries(body, typeObj));
+        resolve(self.formatEntries(body, typeObj));
       }
     });
   })
@@ -199,7 +215,7 @@ if (require.main === module) {
       .then(console.log)
       .catch(console.log);
   
-    t.trendingInfo(60300)
+    t.trendingInfo('movies-60300')
       .then(console.log)
       .catch(console.log);
   })();
