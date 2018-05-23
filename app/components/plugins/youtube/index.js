@@ -29,6 +29,11 @@ function YoutubeSource( options ) {
     description: 'You know what youtube is'   // Description of plugin provider
   };
 
+  this.defaultSettings = {
+    enabled: true
+    // TODO: api key needs to be stored here
+  };
+
   YoutubeSource.super_.apply( this, arguments );
 
   this.youtubesdk = new youtubesdk();

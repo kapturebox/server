@@ -22,6 +22,14 @@ var TransmissionDownloader = function( options ) {
     description: 'Popular torrent downloader'// Description of plugin provider
   };
 
+  this.defaultSettings = {
+    enabled: true,
+    transmissionHost: process.env.TRANSMISSION_HOST || 'transmission',
+    transmissionPort: process.env.TRANSMISSION_PORT || 9091,
+    transmissionUser: process.env.TRANSMISSION_USER || 'admin',
+    transmissionPass: process.env.TRANSMISSION_PASS || 'password',
+  };
+
   TransmissionDownloader.super_.apply( this, arguments );
 
   this.logger.debug( '[TODO] this needs to be fixed, should not be instantiated every time we need to use transmission' );
@@ -45,8 +53,8 @@ var TransmissionDownloader = function( options ) {
 
 TransmissionDownloader.prototype.getRpcUrl = function( item ) {
   return util.format( 'http://%s:%s/transmission/rpc',
-    this.get('transmission_host') || 'localhost',
-    this.get('transmission_port') || 9091
+    this.get('transmissionHost') || 'localhost',
+    this.get('transmissionPort') || 9091
   );
 }
 
@@ -60,8 +68,8 @@ TransmissionDownloader.prototype.download = function( item ) {
         url: self.getRpcUrl(),
         method: 'POST',
         auth: {
-          user: self.get('transmission_user'),
-          pass: self.get('transmission_pass')
+          user: self.get('transmissionUser'),
+          pass: self.get('transmissionPass')
         },
         json: {
           method: 'torrent-add',
@@ -98,8 +106,8 @@ TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
         url: self.getRpcUrl(),
         method: 'POST',
         auth: {
-          user: self.get('transmission_user'),
-          pass: self.get('transmission_pass')
+          user: self.get('transmissionUser'),
+          pass: self.get('transmissionPass')
         },
         json: {
           method: 'torrent-remove',
@@ -134,8 +142,8 @@ TransmissionDownloader.prototype.status = function( item ) {
         url: self.getRpcUrl(),
         method: 'POST',
         auth: {
-          user: self.get('transmission_user'),
-          pass: self.get('transmission_pass')
+          user: self.get('transmissionUser'),
+          pass: self.get('transmissionPass')
         },
         json: {
           method: 'torrent-get',
@@ -207,8 +215,8 @@ TransmissionDownloader.prototype.getSessionID = function () {
       url: self.getRpcUrl(),
       method: 'POST',
       auth: {
-        user: self.get('transmission_user'),
-        pass: self.get('transmission_pass')
+        user: self.get('transmissionUser'),
+        pass: self.get('transmissionPass')
       }
     }, function( err, resp, body ) {
       if( !err && resp.statusCode != 200 ) {

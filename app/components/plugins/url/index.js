@@ -24,6 +24,10 @@ function KaptureURLHandler( options ) {
     description: 'Simple URL download handler'  // Description of plugin provider
   };
 
+  this.defaultSettings = {
+    enabled: true
+  };
+
   KaptureURLHandler.super_.apply( this, arguments );
 
   return this;

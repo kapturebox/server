@@ -35,7 +35,11 @@ var ThepiratebaySource = function( options ) {
     link: 'http://thepiratebay.se',          // Link to provider site
     description: 'General torrent site'      // Description of plugin provider
   };
-  
+
+  this.defaultSettings = {
+    enabled: true
+  };
+
   ThepiratebaySource.super_.apply( this, arguments );
 
   return this;

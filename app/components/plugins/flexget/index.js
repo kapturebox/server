@@ -24,6 +24,21 @@ var FlexgetDownloader = function( options ) {
     description: 'Full featured continuous downloader' // Description of plugin provider
   };
 
+  this.defaultSettings = {
+      enabled: true,
+
+      flexgetCheckFrequency   : 15,
+
+      flexgetHost: process.env.FLEXGET_HOST || 'flexget',
+      flexgetPort: process.env.FLEXGET_PORT || 5050,
+
+      // API Token has precedence over the username / password
+      apiToken:    process.env.FLEXGET_API_TOKEN || null,
+
+      flexgetUser: process.env.FLEXGET_USERNAME || 'flexget',
+      flexgetPass: process.env.FLEXGET_PASSWORD || 'mySuperPassword',
+  };
+  
   FlexgetDownloader.super_.apply( this, arguments );
 
   this.flexgetConfig = {
@@ -38,17 +53,17 @@ var FlexgetDownloader = function( options ) {
     schedules: [{
       tasks: '*',    
       interval: {
-        minutes: 15
+        minutes: this.get('flexgetCheckFrequency')
       },
     }]
   };
 
   // settings in plugin config file
-  this.getApiToken      = this.get.bind( this, 'api_token' );
-  this.getUsername      = this.get.bind( this, 'flexget_user' );
-  this.getPassword      = this.get.bind( this, 'flexget_pass' );
-  this.getFlexgetHost   = this.get.bind( this, 'flexget_host' );
-  this.getFlexgetPort   = this.get.bind( this, 'flexget_port' );
+  this.getApiToken      = this.get.bind( this, 'apiToken' );
+  this.getUsername      = this.get.bind( this, 'flexgetUser' );
+  this.getPassword      = this.get.bind( this, 'flexgetPass' );
+  this.getFlexgetHost   = this.get.bind( this, 'flexgetHost' );
+  this.getFlexgetPort   = this.get.bind( this, 'flexgetPort' );
   
   this.getFlexgetApiUrl = function( path ) {
     return util.format( 'http://%s:%s/api/%s', 

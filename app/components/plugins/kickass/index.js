@@ -17,7 +17,11 @@ var KickassSource = function( options ) {
     link: 'http://kat.cr',               // Link to provider site
     description: 'General torrent site'  // Description of plugin provider
   };
-  
+
+  this.defaultSettings = {
+    enabled: false // disabled due to broken site
+  };
+
   KickassSource.super_.apply( this, arguments );
 
   return this;

@@ -25,6 +25,13 @@ var ShowRssSource = function (options) {
     requires: ['com_flexget', 'com_transmissionbt'],  // this plugin requires the flexget plugin
   };
 
+  // a object that will be used to store default settings and will be set
+  // in the user settings if not present
+  this.defaultSettings = {
+    enabled: true
+  };
+  
+
   ShowRssSource.super_.apply(this, arguments);
 
   return this;

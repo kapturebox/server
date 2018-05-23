@@ -59,40 +59,8 @@ var all = {
       default               : 'downloads'  
     },
     plugins                 : {
-      'com_piratebay': {
-        enabled: true
-      },
-      'com_youtube': {
-        enabled: true
-      },
-      'info_showrss': {
-        enabled: true
-      },
-      'com_transmissionbt': {
-        enabled: true,
-        transmission_host: process.env.TRANSMISSION_HOST || 'transmission',
-        transmission_port: process.env.TRANSMISSION_PORT || 9091,
-        transmission_user: process.env.TRANSMISSION_USER || 'admin',
-        transmission_pass: process.env.TRANSMISSION_PASS || 'password',
-      },
-      'com_flexget': {
-        enabled: true,
-
-        flexgetCheckFrequency   : 15,
-
-        flexget_host: process.env.FLEXGET_HOST || 'flexget',
-        flexget_port: process.env.FLEXGET_PORT || 5050,
-
-        // API Token has precedence over the username / password
-        api_token:    process.env.FLEXGET_API_TOKEN || null,
-
-        flexget_user: process.env.FLEXGET_USERNAME || 'flexget',
-        flexget_pass: process.env.FLEXGET_PASSWORD || 'mySuperPassword',
-
-      },
-      'com_kapture_url': {
-        enabled: true
-      }
+      // Migrated to each individual plugin's `defaultSettings`
+      // TODO: perhaps we should instanciate those settings on initial startup?
     }
   },
 

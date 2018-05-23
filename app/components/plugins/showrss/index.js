@@ -22,6 +22,10 @@ var ShowRssSource = function (options) {
     description: 'Updated feed of TV shows'   // Description of plugin provider
   };
 
+  this.defaultSettings = {
+    enabled: true
+  };
+
   ShowRssSource.super_.apply(this, arguments);
 
   return this;
