@@ -1,30 +1,30 @@
 'use strict';
 
-var fs      = require('fs');
-var _       = require('lodash');
-var path    = require('path');
-var util    = require('util');
-var base    = require('./plugin_base');
-var config  = require('../../config/environment');
+var fs = require('fs');
+var _ = require('lodash');
+var path = require('path');
+var util = require('util');
+var base = require('./plugin_base');
+var config = require('../../config/environment');
 
-var PLUGIN_PREFIX = path.join( 
-  __dirname, '..',  'plugins' 
+var PLUGIN_PREFIX = path.join(
+  __dirname, '..', 'plugins'
 );
 
 
 
 module.exports = {
-  getEnabledPlugins: function() {
-    return _.filter( this.getAllPlugins(), function(p) {
+  getEnabledPlugins: function () {
+    return _.filter(this.getAllPlugins(), function (p) {
       return p.isEnabled();
     });
   },
 
-  getAllPlugins: function() {
+  getAllPlugins: function () {
     var self = this;
-    return this.getAllPluginFiles().map( function( plugin_name ) {
-      var plugin = require( '../plugins/' + plugin_name );
-      util.inherits( plugin, base );
+    return this.getAllPluginFiles().map(function (plugin_name) {
+      var plugin = require('../plugins/' + plugin_name);
+      util.inherits(plugin, base);
 
       plugin.prototype.pluginHandler = self;
       var newPluginObj = new plugin();
@@ -33,18 +33,18 @@ module.exports = {
     })
   },
 
-  getAllPluginFiles: function() {
-    return fs.readdirSync( PLUGIN_PREFIX );
+  getAllPluginFiles: function () {
+    return fs.readdirSync(PLUGIN_PREFIX);
   },
 
-  getPlugin: function( pluginId ) {
-    var result = _.find( this.getAllPlugins(), {
+  getPlugin: function (pluginId) {
+    var result = _.find(this.getAllPlugins(), {
       metadata: {
         pluginId: pluginId
       }
     });
 
-    if( ! result ) {
+    if (!result) {
       let err = new Error(`no plugin found matching: ${pluginId}`);
       err.statusCode = 409;
       throw err;
@@ -54,32 +54,32 @@ module.exports = {
   },
 
 
-  getEnabledPluginsOfType: function(pluginType) {
-    return _.filter( this.getEnabledPlugins(), function(p) {
-      return _.includes( p.metadata.pluginTypes, pluginType );
-    });    
-  },
-
-  // gets first download provider that matches specific mechanism
-  getDownloadMechanismProvider: function( downloadMechanism ) {
-    return _.find( this.getEnabledPlugins(), function(p) {
-      return _.includes( p.metadata.pluginTypes, 'downloader' )
-          && _.includes( p.metadata.downloadProviders, downloadMechanism );
+  getEnabledPluginsOfType: function (pluginType) {
+    return _.filter(this.getEnabledPlugins(), function (p) {
+      return _.includes(p.metadata.pluginTypes, pluginType);
     });
   },
 
-  getEnabledDownloaders: function() {
+  // gets first download provider that matches specific mechanism
+  getDownloadMechanismProvider: function (downloadMechanism) {
+    return _.find(this.getEnabledPlugins(), function (p) {
+      return _.includes(p.metadata.pluginTypes, 'downloader')
+        && _.includes(p.metadata.downloadProviders, downloadMechanism);
+    });
+  },
+
+  getEnabledDownloaders: function () {
     return this.getEnabledPluginsOfType('downloader');
   },
 
-  getEnabledSources: function() {
+  getEnabledSources: function () {
     return this.getEnabledPluginsOfType('source');
   },
 
-  getEnabledSeriesProviders: function() {
+  getEnabledSeriesProviders: function () {
     return this.getEnabledPluginsOfType('series');
   },
 
 
-  
+
 }

@@ -7,7 +7,5 @@
  *   filter {string}
  *   
  */
-exports.handler = function getalldownloads(req, res, next) {
-  res.send('getalldownloads')
-  next()
-}
+
+exports.handler = require('../api/download/download.controller').getDownloads;
