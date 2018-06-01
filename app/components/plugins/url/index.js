@@ -200,6 +200,27 @@ KaptureURLHandler.prototype.remove = function( item, deleteFromDisk ) {
 }
 
 
+
+KaptureURLHandler.prototype.removeId = function(id) {
+  return Promise.reject(new Error('KaptureURLHandler: removeId() not yet implemented'));
+}
+
+
+KaptureURLHandler.prototype.removeSlug = function(slug) {
+  return Promise.reject(new Error('KaptureURLHandler: removeSlug() not yet implemented'));
+}
+
+
+KaptureURLHandler.prototype.downloadId = function(id) {
+  return Promise.reject(new Error('KaptureURLHandler: downloadId() not yet implemented'));
+}
+
+
+KaptureURLHandler.prototype.downloadSlug = function(slug) {
+  return Promise.reject(new Error('KaptureURLHandler: downloadSlug() not yet implemented'));
+}
+
+
 ///////////
 // HELPERS
 ///////////

@@ -26,19 +26,17 @@ module.exports = function resultsFilter(objects, filterStr) {
     filterObj[splitted[0]] = val;
   });
 
-  switch(typeof(objects)) {
-    case 'array':
-      return _.filter(objects, filterObj)
-    case 'object':  // allows for (1 level) deep object filtering
-      var result = {};
+  if(Array.isArray(objects)) {
+    return _.filter(objects, filterObj);
+  } else if(typeof(objects) === 'object') {
+    var result = {};
 
-      Object.keys(objects).forEach((k) => {
-        result[k] = _.filter(objects[k], filterObj);
-      });
+    Object.keys(objects).forEach((k) => {
+      result[k] = _.filter(objects[k], filterObj);
+    });
 
-      return result;
-    default:
-      return objects;
-
+    return result;
+  } else {
+    return objects;
   }
 }

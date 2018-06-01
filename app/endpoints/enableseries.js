@@ -18,9 +18,7 @@ exports.handler = function addSeriesV1(req, res, next) {
 
   plugins
     .getPlugin(sourceId)
-    .addEntryId(entryId)
-    .then(function (item) {
-      return res.status(200).json(item);
-    })
+    .downloadId(entryId)  //TODO: Should probably make this more consistent with slug / id paradigm
+    .then((item) => res.status(200).json(item))
     .catch(next);
 }

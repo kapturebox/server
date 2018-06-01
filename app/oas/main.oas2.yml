@@ -59,6 +59,8 @@
             schema: 
               type: "object"
               properties: {}
+          400: 
+            description: "Invalid request (see error)"
         parameters: 
           - 
             in: "path"
@@ -95,6 +97,8 @@
             schema: 
               type: "object"
               properties: {}
+          400: 
+            description: "Invalid request (see error)"
         summary: "Delete a series from being autokaptured"
         parameters: 
           - 
@@ -111,6 +115,17 @@
         tags: 
           - "Series"
         description: "Stops a specific `seriesId` from being autokaptured"
+      get: 
+        responses: 
+          200: 
+            $ref: "#/responses/seriesInfoResponse"
+          404: 
+            description: "Series doesn't exist"
+        summary: "Get details about a specific series"
+        description: "Will return an object with as much data as the source can provide, however it will namely return info about \"seen\" episodes, as well as \"upcoming\" ones."
+        operationId: "getseriesinfo"
+        tags: 
+          - "Series"
     /series: 
       get: 
         responses: 
@@ -159,39 +174,39 @@
             x-examples: 
               application/json: 
                 downloadPaths: 
-                  root: "consectetur tempor qui"
-                  default: "irure cillum"
-                  movies: "dolor sed enim"
-                  music: "cillum dolor "
-                  photos: "ut Lorem sunt mini"
-                  shows: "enim Lorem ad"
+                  default: "in commodo esse"
+                  movies: "dolor proident"
+                  music: "sit labore"
+                  photos: "amet velit"
+                  root: "aliqua adipisicing"
+                  series: "qui et adipisicing aute labor"
                 plugins: 
                   com_flexget: 
-                    api_token: null
-                    enabled: false
-                    flexgetCheckFrequency: 52589380
-                    flexget_host: "consectetur officia et Lorem"
-                    flexget_pass: "nostrud ut est consectetur"
-                    flexget_port: 41810233
-                    flexget_user: "cillu"
+                    apiToken: null
+                    enabled: true
+                    flexgetCheckFrequency: -73103553
+                    flexgetHost: "commodo aliquip minim"
+                    flexgetPass: "fugiat"
+                    flexgetPort: 41967102
+                    flexgetUser: "esse quis"
                   com_kapture_url: 
                     enabled: true
                   com_piratebay: 
                     enabled: true
                   com_transmissionbt: 
-                    enabled: false
-                    transmission_host: "deserunt"
-                    transmission_pass: "dolore commodo nulla sunt anim"
-                    transmission_port: 56023170
-                    transmission_user: "dolor sunt"
+                    enabled: true
+                    transmissionHost: "ipsum"
+                    transmissionPass: "labore laborum sit"
+                    transmissionPort: -45449836
+                    transmissionUser: "eu ut ea magna"
                   com_youtube: 
                     enabled: false
                   info_showrss: 
-                    enabled: true
+                    enabled: false
                 system: 
-                  name: "laboris fugiat"
+                  name: "dolor mollit proident amet"
                 userInfo: 
-                  email: null
+                  email: "ipsum eiusmod velit labore"
       patch: 
         responses: 
           202: 
@@ -238,7 +253,7 @@
           type: "string"
           required: true
           description: "Key of setting you would like to change (nested keys are separated by .)"
-    /downloads/source:{sourceId}/{slug}: 
+    /downloads/source:{sourceId}/{entryId}: 
       post: 
         responses: 
           200: 
@@ -246,8 +261,10 @@
             schema: 
               type: "object"
               properties: {}
+          400: 
+            description: "Invalid request (see error)"
         summary: "Start download based on source configuration of entryId"
-        description: "Allows `sourceId` plugin to determine how to download the given `slug` selection based on the source configuration"
+        description: "Allows `sourceId` plugin to determine how to download the given `entryId` denoted by the `id` field of search source objects.  If this is a series, it largely does the same thing that a `POST /series/{sourceId}/{entryId}` does."
         operationId: "startdownloadfromsource"
         tags: 
           - "Downloading"
@@ -258,7 +275,7 @@
           type: "string"
           required: true
         - 
-          name: "slug"
+          name: "entryId"
           in: "path"
           type: "string"
           required: true
@@ -270,8 +287,10 @@
             schema: 
               type: "object"
               properties: {}
+          400: 
+            description: "Invalid `methodId` provided"
         summary: "Start download based on download method"
-        description: "Starts a new download based on `methodId` download provider of `slug` entry"
+        description: "Starts a new download based on `methodId` download provider of `slug` value provided by source"
         operationId: "startdownloadfrommethod"
         tags: 
           - "Downloading"
@@ -281,18 +300,13 @@
           in: "path"
           type: "string"
           required: true
-          description: "Downloader method to use"
-          enum: 
-            - "torrent"
-            - "youtube"
-            - "url"
-            - "flexget"
+          description: "`methodId` that determines how the `slug` should be downloaded via"
         - 
           name: "slug"
           in: "path"
           type: "string"
           required: true
-          description: "Some string based on what download provider can provide"
+          description: "slug provided by source that represents what entry is desired to be initiatated"
     /trending: 
       get: 
         responses: 
@@ -400,8 +414,8 @@
             schema: 
               type: "object"
               properties: {}
-          409: 
-            description: "Unable to perform request due to unexpected configuration issue (see error)"
+          400: 
+            description: "Invalid request (see error)"
         summary: "Get more details about trending entry"
         description: "Will provide as much info as possible to the user about a specific trending `id` from a given `sourceId`."
         operationId: "trendinginfo"
@@ -576,19 +590,19 @@
             com_flexget: 
               type: "object"
               properties: 
-                api_token: 
+                apiToken: 
                   type: "null"
                 enabled: 
                   type: "boolean"
                 flexgetCheckFrequency: 
                   type: "integer"
-                flexget_host: 
+                flexgetHost: 
                   type: "string"
-                flexget_pass: 
+                flexgetPass: 
                   type: "string"
-                flexget_port: 
+                flexgetPort: 
                   type: "integer"
-                flexget_user: 
+                flexgetUser: 
                   type: "string"
             com_kapture_url: 
               type: "object"
@@ -605,13 +619,13 @@
               properties: 
                 enabled: 
                   type: "boolean"
-                transmission_host: 
+                transmissionHost: 
                   type: "string"
-                transmission_pass: 
+                transmissionPass: 
                   type: "string"
-                transmission_port: 
+                transmissionPort: 
                   type: "integer"
-                transmission_user: 
+                transmissionUser: 
                   type: "string"
             com_youtube: 
               type: "object"
@@ -669,6 +683,34 @@
             - "null"
           items: 
             $ref: "#/definitions/trendingMediaEntry"
+    seriesInfoEntry: 
+      type: "object"
+      properties: 
+        seen: 
+          type: "array"
+          items: 
+            type: "object"
+            properties: 
+              title: 
+                type: "string"
+              date: 
+                type: "string"
+                format: "date-time"
+              downloadMechanism: 
+                type: "string"
+              slug: 
+                type: "string"
+              sourceData: 
+                type: "string"
+        upcoming: 
+          type: "array"
+          items: 
+            type: "object"
+            properties: 
+              title: 
+                type: "string"
+              date: 
+                type: "string"
   basePath: "/api/v1"
   responses: 
     downloadResponse: 
@@ -844,6 +886,10 @@
       description: "Response of a trending media aggregate query"
       schema: 
         $ref: "#/definitions/trendingMediaAggregateModel"
+    seriesInfoResponse: 
+      description: "Response that contains info about a particular series info"
+      schema: 
+        $ref: "#/definitions/seriesInfoEntry"
   parameters: 
     filterQueryString: 
       name: "filter"

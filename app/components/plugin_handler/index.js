@@ -11,9 +11,49 @@ var PLUGIN_PREFIX = path.join(
   __dirname, '..', 'plugins'
 );
 
+const PLUGIN_REQUIREMENTS = {
+  downloader: {
+    functions: ['downloadSlug', 'downloadId', 'status', 'removeId', 'removeSlug'],
+  },
+  trending: {
+    functions: ['trending', 'trendingInfo']
+  },
+  source: {
+    functions: ['search']
+  },
+  series: {
+    functions: ['addId', 'removeId', 'getEnabledSeries']
+  }
+}
+
 
 
 module.exports = {
+  verifyPlugin: function(plugin) {
+    let types = plugin.metadata.pluginTypes;
+
+    if(!Array.isArray(types))
+      types = [types];
+
+    types.forEach((t) => {
+      const funcs = PLUGIN_REQUIREMENTS[t].functions.map((f) => {
+        if(typeof(plugin[f]) !== 'function')
+          return f;
+
+        return null;
+      })
+      .reduce((prev, cur) => {
+        if(cur !== null) 
+          prev.push(cur);
+        return prev;
+      }, []);
+
+      if(funcs.length) {
+        throw new Error(`PluginError: ${plugin.metadata.pluginId} missing functions: ${funcs.join(',')}`);
+      }
+    });
+  },
+
   getEnabledPlugins: function () {
     return _.filter(this.getAllPlugins(), function (p) {
       return p.isEnabled();
@@ -28,6 +68,8 @@ module.exports = {
 
       plugin.prototype.pluginHandler = self;
       var newPluginObj = new plugin();
+
+      self.verifyPlugin(newPluginObj);
 
       return newPluginObj;
     })
@@ -46,7 +88,7 @@ module.exports = {
 
     if (!result) {
       let err = new Error(`no plugin found matching: ${pluginId}`);
-      err.statusCode = 409;
+      err.statusCode = 400;
       throw err;
     }
 
@@ -62,10 +104,18 @@ module.exports = {
 
   // gets first download provider that matches specific mechanism
   getDownloadMechanismProvider: function (downloadMechanism) {
-    return _.find(this.getEnabledPlugins(), function (p) {
+    const result = _.find(this.getEnabledPlugins(), function (p) {
       return _.includes(p.metadata.pluginTypes, 'downloader')
-        && _.includes(p.metadata.downloadProviders, downloadMechanism);
+          && _.includes(p.metadata.downloadProviders, downloadMechanism);
     });
+
+    if( ! result ) {
+      let err = new Error(`no download method: ${downloadMechanism}`);
+      err.statusCode = 400;
+      throw err;
+    }
+
+    return result;
   },
 
   getEnabledDownloaders: function () {

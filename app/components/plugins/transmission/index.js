@@ -59,7 +59,27 @@ TransmissionDownloader.prototype.getRpcUrl = function( item ) {
 }
 
 
+TransmissionDownloader.prototype.removeId = function(id) {
+  return Promise.reject(new Error('Transmission: removeId() not yet implemented'));
+}
 
+
+TransmissionDownloader.prototype.removeSlug = function(slug) {
+  return Promise.reject(new Error('Transmission: removeSlug() not yet implemented'));
+}
+
+
+TransmissionDownloader.prototype.downloadId = function(id) {
+  return Promise.reject(new Error('Transmission: downloadId() not yet implemented'));
+}
+
+
+TransmissionDownloader.prototype.downloadSlug = function(slug) {
+  return Promise.reject(new Error('Transmission: downloadSlug() not yet implemented'));
+}
+
+
+// DEPRECATED
 TransmissionDownloader.prototype.download = function( item ) {
   var self = this;
   return this.getSessionID().then(function( sessionid ) {

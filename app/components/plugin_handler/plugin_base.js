@@ -1,17 +1,19 @@
 'use strict';
 
-var fs = require('fs');
-var persist = require('node-persist');
-var util = require('util');
-var path = require('path');
-var config = require('../../config/environment');
+const fs = require('fs');
+const persist = require('node-persist');
+const util = require('util');
+const path = require('path');
+const events = require('../events');
+const config = require('../../config/environment');
 
-var stateStorePath = config.pluginStateStore;
+const stateStorePath = config.pluginStateStore;
 
 
 // constructor function for all plugins (After metadata has been set)
 var Plugin = function () {
   this.config = config;
+  this.events = events;
   this.logger = config.logger;
   this.configKey = 'plugins[\'' + this.metadata.pluginId + '\']';
 

@@ -87,38 +87,56 @@ var FlexgetDownloader = function( options ) {
         }
       }
     }
-  }
+  };
 
   return this;
 }
 
 
+// DEPRECATED
 // takes an item provided by the search sources, and sends it to the search source to add
 // state to that plugin, then it kicks off a 'update' job to the flexget server to update teh 
 // state of the config on that end.
 FlexgetDownloader.prototype.download = function( item ) {
   var self = this;
   return new Promise(function( resolve, reject ) {
-    var destPlugin       = self.pluginHandler.getPlugin( item.sourceId );
+    var destPlugin = self.pluginHandler.getPlugin( item.sourceId );
 
     // maintain state in individual plugin
-    return destPlugin.add( item )
-      .then(function( respItem ) {
-        var fullConfig  = _.extend( {}, 
-          self.flexgetConfig, 
-          self.schedulerConfig, 
-          {
-            templates: destPlugin.flexgetTemplateModel() || {},
-            tasks:     destPlugin.flexgetTaskModel() || {}
-          }
-        );
-
-        return resolve( self.updateConfig( fullConfig ) );
-      });
+    return destPlugin
+      .add(item)
+      .then(getModelsAndUpdateFlexget);
   });
 }
 
+FlexgetDownloader.prototype.downloadId = function( id ) {
+  return Promise.reject(new Error('Flexget: downloadId() not yet implemented'));
+}
 
+
+// Slugs in the case of a flexget item are defined as "{pluginId}:{entryId}"
+// due to each plugin requiring a different configuration
+function parseSlug(slug) {
+  let matches = slug.match(/^(\w+):([0-9]+)$/);
+  if(!matches) {
+    let err = new Error(`invalid slug: ${slug}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
+  return {
+    pluginId: matches[1],
+    entryId: matches[2]
+  }
+}
+
+FlexgetDownloader.prototype.downloadSlug = function(slug) {
+  const pSlug = parseSlug(slug);
+  const plugin = this.pluginHandler.getPlugin(pSlug.pluginId);
+
+  return plugin
+    .downloadId(pSlug.entryId);
+}
 
 // updates the entire config file on the flexget side with given json object
 // this focuses mostly on the sending to the server
@@ -202,26 +220,19 @@ FlexgetDownloader.prototype.updateTask = function( taskConfig ) {
 // details here: https://github.com/gaieges/docker-flexget
 
 // takes the item as generated in search, and removes from list (with delete option if present)
-FlexgetDownloader.prototype.remove = function( item, deleteOnDisk ) {
-  var self = this;
-  return new Promise(function( resolve, reject ) {
-    var destPlugin       = self.pluginHandler.getPlugin( item.sourceId );
+FlexgetDownloader.prototype.removeSlug = function( slug, deleteOnDisk ) {
+  const self = this;
+  const pSlug = parseSlug(slug);
+  const destPlugin  = this.pluginHandler.getPlugin(pSlug.sourceId);
 
-    // maintain state in individual plugin
-    return destPlugin.remove( item )
-      .then(function( respItem ){
-        var fullConfig  = _.extend( {}, 
-          self.flexgetConfig, 
-          self.schedulerConfig, 
-          {
-            templates: destPlugin.flexgetTemplateModel() || {},
-            tasks:     destPlugin.flexgetTaskModel() || {}
-          }
-        );
+  // maintain state in individual plugin
+  return destPlugin
+    .removeId(pSlug.entryId)
+    .then(this.getModelsAndUpdateFlexget);
+}
 
-        return resolve( self.updateConfig( fullConfig ) );
-      });
-  });
+FlexgetDownloader.prototype.removeId = function(id, deleteOnDisk) {
+  return Promise.reject(new Error('Flexget: removeId: not yet implemented'));
 }
 
 // does nothing really but is here because it's offically a 'downloader'.  may at some point
@@ -230,7 +241,35 @@ FlexgetDownloader.prototype.status = function( ) {
   return Promise.resolve([]); // doesnt actually give status updates, comes from transmission
 }
 
+// reaches out to all of the possible 'continuous' plugins and if
+// they have the proper flexget functions, will get that model and
+// add it to the config
+FlexgetDownloader.prototype.getModelsAndUpdateFlexget = function() {
+  this.logger.debug('[flexget] updating model..');
 
+  const flexgetPlugins = _.filter(
+    this.pluginHandler.getEnabledPluginsOfType('series'), 
+    (p) => {
+      return typeof p.flexgetTaskModel === 'function'
+        &&   typeof p.flexgetTemplateModel === 'function'
+    });
+
+  const fullConfig  = _.extend( {}, 
+    this.flexgetConfig, 
+    this.schedulerConfig, 
+    {
+      templates: flexgetPlugins
+        .map((p) => p.flexgetTemplateModel())
+        .reduce((prev, cur) => _.merge(prev, cur),{}),
+      tasks: flexgetPlugins
+        .map((p) => p.flexgetTaskModel())
+        .reduce((prev, cur) => _.merge(prev, cur),{}),
+    }
+  );
+
+
+  return this.updateConfig(fullConfig)
+} 
 
 
 

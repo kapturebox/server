@@ -7,20 +7,20 @@ const filterResults = require('../../components/results_filter');
 
 
 // Get list of searchs
-exports.search = function( req, res, next ) {
+exports.search = function (req, res, next) {
   const query = req.query.q;
   const filter = req.query.filter;
 
-  config.logger.info( 'search query: %s, filtering on %s', query, filter );
+  config.logger.info('search query: "%s", filtering on: "%s"', query, filter);
 
   search(query)
-    .then(function(results) {
+    .then(function (results) {
       return filter ? filterResults(results, filter) : results;
     }
-    ).then(function(results) {
-      return res.status(200).json( results );
+    ).then(function (results) {
+      return res.status(200).json(results);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       config.logger.error('cant get results:', err);
       return next(err);
     });
