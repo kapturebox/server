@@ -111,7 +111,7 @@ function setUserSetting( key, value ) {
   var toSave = root;
 
   if( typeof( key ) === 'object' ) {
-    toSave = _.merge( root, key );
+    toSave = key;
   } else if( typeof( key ) === 'string' ) {
     toSave = _.set( root, key, value );
   } else {

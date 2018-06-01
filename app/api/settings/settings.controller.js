@@ -32,11 +32,12 @@ exports.getSetting = function( req, res, next ) {
 
 // given a body of settings, update all settings to match that
 exports.putSettings = function( req, res, next ) {
-  return next('not yet implemented');
+  config.setUserSetting(req.body);
+  return res.status(202).json(config.getUserSetting());
 }
 
 // given a body with a single (or muptiple) settings changed, change just those
 exports.patchSettings = function( req, res, next ) {
   config.setUserSetting( req.body );
-  return res.status(202).send();;
+  return res.status(202).json(config.getUserSetting());
 }

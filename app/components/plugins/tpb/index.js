@@ -76,6 +76,11 @@ ThepiratebaySource.prototype.download = function( url ) {
   return this.url( url );
 };
 
+// needs to go out and get the magnet link again?  or should we cache all results?
+// maybe just dont provide an ID and rely on `method` approach
+ThepiratebaySource.prototype.downloadId = function( id ) {
+  throw new Error('ThepiratebaySource: not yet implemented: downloadId')
+};
 
 ThepiratebaySource.prototype.getDownloadStatus = function() {
   return [];
@@ -136,7 +141,9 @@ ThepiratebaySource.prototype.transformResults = function( jsonResults ) {
       leechers:           parseInt( d.leechers ),
       score:              self.calculateScore( d ),
       source_data:        d,
-      downloadMechanism:  'torrent'
+      downloadMechanism:  'torrent',
+      slug:               d.magnetLink,
+      id:                 d.id
     }
   });
 };

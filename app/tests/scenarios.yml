@@ -1,0 +1,165 @@
+---
+  scenarioVersion: "1.1"
+  name: "Main Functionality"
+  settings: 
+    testing: 
+      oas2: []
+  scenarios: 
+    series: 
+      name: "Verify series functionality works"
+      steps: 
+        - 
+          type: "http"
+          name: "Search for \"sunny\" with series filter"
+          input: 
+            method: "get"
+            url: "{$$.env.host}/api/v1/search"
+            query: 
+              q: "sunny"
+              filter: "mediaType:series"
+            headers: 
+              : ""
+          after: 
+            transforms: 
+              - 
+                target: "$.ctx.id"
+                source: "output.body[0].id"
+              - 
+                target: "$.ctx.slug"
+                source: "output.body[0].slug"
+              - 
+                target: "$.ctx.sourceId"
+                source: "output.body[0].sourceId"
+              - 
+                target: "$.ctx.downloadMechanism"
+                source: "output.body[0].downloadMechanism"
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+            script: "var bdy = output.body.get();\n\ntests['1 entry in response'] = bdy.length === 1\ntests['title is always sunny'] = bdy[0].title === \"It's Always Sunny in Philadelphia\""
+        - 
+          type: "http"
+          name: "Add sunny to download via \"source\" method"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/source:{$.ctx.sourceId}/{$.ctx.id}"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+              - 
+                target: "output.body.id"
+                op: "eq"
+                expected: "{$.ctx.id}"
+            script: "const bdy = output.body.get();\n\ntests['seen has length > 0'] = Array.isArray(bdy.seen) && bdy.seen.length > 0"
+        - 
+          type: "http"
+          name: "Add sunny via \"method\" method"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/method:{$.ctx.downloadMechanism}/{$.ctx.slug}"
+        - 
+          type: "http"
+          name: "Get info about show requested"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/series/{$.ctx.sourceId}/{$.ctx.id}"
+          after: 
+            assertions: 
+              - 
+                target: "output.body.id"
+                op: "eq"
+                expected: "{$.ctx.id}"
+        - 
+          type: "http"
+          name: "Ensure that the /series endpoint returns this entry"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/series"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+              - 
+                target: "output.body[0].id"
+                op: "eq"
+                expected: "{$.ctx.id}"
+              - 
+                target: "output.body"
+                op: "length"
+                expected: 1
+        - 
+          type: "http"
+          name: "Delete series from autokapture"
+          input: 
+            method: "delete"
+            url: "{$.env.host}/api/v1/series/{$.ctx.sourceId}/{$.ctx.id}"
+  utilities: {}
+  before: 
+    settings: 
+      name: "Ensure settings are set properly"
+      steps: 
+        - 
+          type: "http"
+          name: "Get settings"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/settings"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+              - 
+                target: "output.body.downloadPaths"
+                op: "exists"
+            transforms: 
+              - 
+                target: "$.ctx.settings"
+                source: "output.body"
+        - 
+          type: "http"
+          name: "Change all settings to something silly"
+          input: 
+            method: "put"
+            url: "{$.env.host}/api/v1/settings"
+            headers: 
+              Content-Type: "application/json"
+            body: "{$.ctx.badSettings}"
+          after: 
+            script: "tests['bad config comes back'] = _.isEqual(output.body.get(), $.ctx.get('badSettings'));"
+          before: 
+            script: "\n$.ctx.set('badSettings', {\n  downloadPaths: {},\n  plugins: {},\n  system: {\n    hostName: \"woohoo\"\n  },\n  userInfo: {}\n});  \n"
+        - 
+          type: "http"
+          name: "Re-enable the previous settings via PUT"
+          input: 
+            method: "put"
+            url: "{$.env.host}/api/v1/settings"
+            body: "{$.ctx.settings}"
+        - 
+          type: "http"
+          name: "Update settings to enable proper plugins for test runs"
+          input: 
+            method: "patch"
+            url: "{$.env.host}/api/v1/settings"
+            body: "{\n\t\"plugins\": {\n  \t\"com_flexget\": {\n      \"enabled\": true\n    },\n  \t\"com_kapture_url\": {\n      \"enabled\": true\n    },\n  \t\"com_piratebay\": {\n      \"enabled\": true\n    },\n  \t\"com_transmissionbt\": {\n      \"enabled\": true\n    },\n  \t\"com_youtube\": {\n      \"enabled\": true\n    },\n  \t\"info_showrss\": {\n      \"enabled\": true\n    },\n  \t\"tv_trakt\": {\n      \"enabled\": true\n    }\n  }\n}"
+            headers: 
+              Content-Type: "application/json"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 202
+            script: "const enabledKeys = [\n  'plugins.com_flexget.enabled',\n  'plugins.com_kapture_url.enabled',\n  'plugins.com_piratebay.enabled',\n  'plugins.com_transmissionbt.enabled',\n  'plugins.com_youtube.enabled',\n  'plugins.info_showrss.enabled',\n  'plugins.tv_trakt.enabled'\n];\n\nenabledKeys.forEach(function (k) {\n  tests[k + ' is enabled'] = output.body.get(k) === true;\n});\n"
+          before: {}
+      description: "Tests some basic settings stuff, and ensures that last step allows for all sources to be enabled properly"
+

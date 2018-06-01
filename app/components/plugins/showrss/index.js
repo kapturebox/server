@@ -101,6 +101,7 @@ ShowRssSource.prototype.removeId = function (id) {
   });
 }
 
+ShowRssSource.prototype.disableId = ShowRssSource.prototype.removeId;
 
 
 ShowRssSource.prototype.calculateScore = function (result) {
@@ -113,7 +114,7 @@ ShowRssSource.prototype.status = function () {
 
 // DEPRECATED
 ShowRssSource.prototype.download = function (item) {
-  return this.addId(item.id);
+  return this.enableId(item.id);
 };
 
 // DEPRECATED
@@ -250,7 +251,7 @@ ShowRssSource.prototype.add = function (item) {
  * 
  * @param {String} id   the source provided id
  */
-ShowRssSource.prototype.addId = function (id) {
+ShowRssSource.prototype.enableId = function (id) {
   var self = this;
   var returnedInfo;
 
@@ -264,6 +265,9 @@ ShowRssSource.prototype.addId = function (id) {
     })
     .then(() => returnedInfo);
 }
+
+ShowRssSource.prototype.downloadId = ShowRssSource.prototype.enableId;
+
 
 ShowRssSource.prototype.getEnabledSeriesNames = function () {
   return this.getState().map(function (e) {

@@ -130,7 +130,12 @@
       get: 
         responses: 
           200: 
-            $ref: "#/responses/seriesEntriesResponse"
+            description: "Provides info on all currently enabled series"
+            schema: 
+              type: "array"
+              items: 
+                $ref: "#/definitions/seriesEnabledEntry"
+            examples: {}
         summary: "Get all currently configured autokapture series"
         operationId: "getallseries"
         tags: 
@@ -693,14 +698,16 @@
             properties: 
               title: 
                 type: "string"
-              date: 
+              uploaded: 
                 type: "string"
                 format: "date-time"
-              downloadMechanism: 
-                type: "string"
               slug: 
                 type: "string"
               sourceData: 
+                type: "string"
+              downloadMechanism: 
+                type: "string"
+              showName: 
                 type: "string"
         upcoming: 
           type: "array"
@@ -711,6 +718,23 @@
                 type: "string"
               date: 
                 type: "string"
+              description: 
+                type: "string"
+              detailLink: 
+                type: "string"
+        title: 
+          type: "string"
+        id: 
+          type: "string"
+    seriesEnabledEntry: 
+      type: "object"
+      properties: 
+        id: 
+          type: "string"
+        sourceId: 
+          type: "string"
+        title: 
+          type: "string"
   basePath: "/api/v1"
   responses: 
     downloadResponse: 

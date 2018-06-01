@@ -59,18 +59,13 @@ TransmissionDownloader.prototype.getRpcUrl = function( item ) {
 }
 
 
-TransmissionDownloader.prototype.removeId = function(id) {
+TransmissionDownloader.prototype.removeDownloadId = function(id) {
   return Promise.reject(new Error('Transmission: removeId() not yet implemented'));
 }
 
 
 TransmissionDownloader.prototype.removeSlug = function(slug) {
   return Promise.reject(new Error('Transmission: removeSlug() not yet implemented'));
-}
-
-
-TransmissionDownloader.prototype.downloadId = function(id) {
-  return Promise.reject(new Error('Transmission: downloadId() not yet implemented'));
 }
 
 

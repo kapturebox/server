@@ -7,7 +7,7 @@ var plugins = require('../../components/plugin_handler');
 var config = require('../../config/environment');
 
 
-
+// DEPRECATE THIS ENTIRE SERVICE
 
 /////////////////////////////////////////
 // DownloadService

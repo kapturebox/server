@@ -12,17 +12,17 @@ var PLUGIN_PREFIX = path.join(
 );
 
 const PLUGIN_REQUIREMENTS = {
-  downloader: {
-    functions: ['downloadSlug', 'downloadId', 'status', 'removeId', 'removeSlug'],
+  downloader: {   // ie transmission, flexget
+    functions: ['downloadSlug', 'status', 'removeDownloadId', 'removeSlug']
   },
-  trending: {
+  trending: {     // ie trakt.tv , billboard
     functions: ['trending', 'trendingInfo']
   },
-  source: {
-    functions: ['search']
+  source: {       // ie youtube, tpb
+    functions: ['search', 'downloadId']
   },
-  series: {
-    functions: ['addId', 'removeId', 'getEnabledSeries']
+  series: {       // ie showrss
+    functions: ['enableId', 'disableId', 'getEnabledSeries']
   }
 }
 

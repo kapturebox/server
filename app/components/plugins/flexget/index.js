@@ -231,8 +231,8 @@ FlexgetDownloader.prototype.removeSlug = function( slug, deleteOnDisk ) {
     .then(this.getModelsAndUpdateFlexget);
 }
 
-FlexgetDownloader.prototype.removeId = function(id, deleteOnDisk) {
-  return Promise.reject(new Error('Flexget: removeId: not yet implemented'));
+FlexgetDownloader.prototype.removeDownloadId = function(id, deleteOnDisk) {
+  return Promise.reject(new Error('Flexget: removeDownloadId: not yet implemented'));
 }
 
 // does nothing really but is here because it's offically a 'downloader'.  may at some point

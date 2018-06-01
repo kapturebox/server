@@ -309,8 +309,8 @@ YoutubeSource.prototype.remove = function (item, deleteFromDisk) {
 
 
 
-YoutubeSource.prototype.removeId = function(id) {
-  return Promise.reject(new Error('YoutubeSource: removeId() not yet implemented'));
+YoutubeSource.prototype.removeDownloadId = function(id) {
+  return Promise.reject(new Error('YoutubeSource: removeDownloadId() not yet implemented'));
 }
 
 

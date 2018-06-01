@@ -70,6 +70,11 @@ KickassSource.prototype.getDownloadStatus = function() {
   return [];
 }
 
+// likely doesnt work but neither does the plugin so who cares
+KickassSource.prototype.downloadId = function( id ) {
+  return this.url( id );
+};
+
 
 
 KickassSource.prototype.transformKatResults = function ( jsonResults ) {

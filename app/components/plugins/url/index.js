@@ -201,8 +201,8 @@ KaptureURLHandler.prototype.remove = function( item, deleteFromDisk ) {
 
 
 
-KaptureURLHandler.prototype.removeId = function(id) {
-  return Promise.reject(new Error('KaptureURLHandler: removeId() not yet implemented'));
+KaptureURLHandler.prototype.removeDownloadId = function(id) {
+  return Promise.reject(new Error('KaptureURLHandler: removeDownloadId() not yet implemented'));
 }
 
 
