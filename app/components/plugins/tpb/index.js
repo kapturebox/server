@@ -79,7 +79,17 @@ ThepiratebaySource.prototype.download = function( url ) {
 // needs to go out and get the magnet link again?  or should we cache all results?
 // maybe just dont provide an ID and rely on `method` approach
 ThepiratebaySource.prototype.downloadId = function( id ) {
-  throw new Error('ThepiratebaySource: not yet implemented: downloadId')
+  const self = this;
+
+  return tpb
+    .getTorrent(id)
+    .then((result) => {
+      const magnetLink = result.magnetLink;
+      return self
+        .pluginHandler
+        .getPlugin('com_transmissionbt')
+        .downloadSlug(magnetLink);
+  });
 };
 
 ThepiratebaySource.prototype.getDownloadStatus = function() {
@@ -140,9 +150,9 @@ ThepiratebaySource.prototype.transformResults = function( jsonResults ) {
       seeders:            parseInt( d.seeders ),
       leechers:           parseInt( d.leechers ),
       score:              self.calculateScore( d ),
-      source_data:        d,
+      sourceData:         d,
       downloadMechanism:  'torrent',
-      slug:               d.magnetLink,
+      slug:               Buffer.from(d.magnetLink).toString('base64'),
       id:                 d.id
     }
   });
@@ -154,7 +164,7 @@ ThepiratebaySource.prototype.determineMediaType = function ( elem ) {
   switch( elem.category.name + ':' + elem.subcategory.name ) {
     case 'Video:HD - TV shows':
     case 'Video:TV shows':
-      return 'tvshow';
+      return 'shows';
     case 'Video:Movies':
     case 'Video:HD - Movies':
     case 'Video:undefined':
@@ -165,13 +175,13 @@ ThepiratebaySource.prototype.determineMediaType = function ( elem ) {
     case 'Porn:':
     case 'Porn:Movies':
     case 'Porn:HD - Movies':
-      return 'video';
+      return 'movies';
     case 'Audio':
     case 'Audio:Music':
     case 'Audio:Other':
       return 'music';
     default:
-      return 'unknown';
+      return 'default';
   }
 }
 

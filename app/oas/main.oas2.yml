@@ -288,7 +288,7 @@
       post: 
         responses: 
           200: 
-            description: ""
+            description: "Successfully started new download. Returns information about newly started download."
             schema: 
               type: "object"
               properties: {}
@@ -299,6 +299,19 @@
         operationId: "startdownloadfrommethod"
         tags: 
           - "Downloading"
+        parameters: 
+          - 
+            in: "query"
+            name: "where"
+            type: "string"
+            description: "String of download path where the downloaded file should be placed after completion.  If not set, defaults to `default` download path setting"
+            enum: 
+              - "default"
+              - "movies"
+              - "music"
+              - "photos"
+              - "shows"
+            allowEmptyValue: true
       parameters: 
         - 
           name: "methodId"

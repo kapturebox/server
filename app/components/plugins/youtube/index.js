@@ -138,7 +138,7 @@ YoutubeSource.prototype.transformDownloadResult = function (result) {
     size: result.size,
     thumbnail: result.thumbnails[0].url || null,
     filename: result._filename,
-    slug: result.id,
+    slug: Buffer.from(result.id).toString('base64'),
     fullPath: path.resolve(
       path.join(
         this.config.getUserSetting('downloadPaths.root'), 
@@ -235,7 +235,7 @@ YoutubeSource.prototype.transformSearchResults = function (results) {
       downloadMechanism: self.metadata.downloadProviders,
       mediaType: 'video',
       id: e.id,
-      slug: e.id,
+      slug: Buffer.from(e.id).toString('base64'),
       description: e.snippet.description,
       title: e.snippet.title,
       thumbnail: e.snippet.thumbnails.default.url || null,
@@ -243,8 +243,8 @@ YoutubeSource.prototype.transformSearchResults = function (results) {
       downloadUrl: util.format(YOUTUBE_VIDEO_URL, e.id),
       hashString: sha1.digest('hex'),
       size: self.calculateSize(e),
-      score: self.calculateScore(e)
-      , source_data: e
+      score: self.calculateScore(e), 
+      sourceData: e
     }
   });
 }
@@ -281,18 +281,26 @@ YoutubeSource.prototype.status = function () {
 }
 
 
-
+// DEPRECATED
 YoutubeSource.prototype.remove = function (item, deleteFromDisk) {
+  return this.removeDownloadId(item.id, deleteFromDisk);
+}
+
+
+
+YoutubeSource.prototype.removeDownloadId = function(id, deleteFromDisk) {
   var self = this;
 
   return new Promise(function (resolve, reject) {
     try {
-      var canonical = self.getState(item.id);
+      var canonical = self.getState(id);
       if (canonical === undefined) {
-        throw new Error();
+          let err = new Error(`cant find id [${id}] to delete in store: may have been already deleted`);
+          err.statusCode = 404;
+          throw err;
       }
     } catch (err) {
-      return reject(new Error('cant find item to delete in store'));
+      return reject(err);
     }
 
     try {
@@ -308,25 +316,17 @@ YoutubeSource.prototype.remove = function (item, deleteFromDisk) {
 }
 
 
-
-YoutubeSource.prototype.removeDownloadId = function(id) {
-  return Promise.reject(new Error('YoutubeSource: removeDownloadId() not yet implemented'));
-}
-
-
 YoutubeSource.prototype.removeSlug = function(slug) {
   return Promise.reject(new Error('YoutubeSource: removeSlug() not yet implemented'));
 }
 
 
 YoutubeSource.prototype.downloadId = function(id) {
-  return Promise.reject(new Error('YoutubeSource: downloadId() not yet implemented'));
+  return this.url(util.format(YOUTUBE_VIDEO_URL, id));
 }
 
-
-YoutubeSource.prototype.downloadSlug = function(slug) {
-  return Promise.reject(new Error('YoutubeSource: downloadSlug() not yet implemented'));
-}
+// slug contains the video id
+YoutubeSource.prototype.downloadSlug = YoutubeSource.prototype.downloadId;
 
 
 

@@ -43,7 +43,7 @@ var TransmissionDownloader = function( options ) {
     'audio'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
     'music'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
     'photos' : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
-    'other'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.default') )
+    'default'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.default') )
   };
 
   return this;
@@ -59,8 +59,8 @@ TransmissionDownloader.prototype.getRpcUrl = function( item ) {
 }
 
 
-TransmissionDownloader.prototype.removeDownloadId = function(id) {
-  return Promise.reject(new Error('Transmission: removeId() not yet implemented'));
+TransmissionDownloader.prototype.removeDownloadId = function(id, deleteFromDisk) {
+  return this.removeId(id, deleteFromDisk);
 }
 
 
@@ -68,14 +68,20 @@ TransmissionDownloader.prototype.removeSlug = function(slug) {
   return Promise.reject(new Error('Transmission: removeSlug() not yet implemented'));
 }
 
-
-TransmissionDownloader.prototype.downloadSlug = function(slug) {
-  return Promise.reject(new Error('Transmission: downloadSlug() not yet implemented'));
+// lets assume for now that we're getting passed a magnet, that eventually should
+// handle urls as well though
+TransmissionDownloader.prototype.downloadSlug = function(slug, where) {
+  return this.downloadMagnet(slug, this.getDownloadPath(where));
 }
 
 
 // DEPRECATED
 TransmissionDownloader.prototype.download = function( item ) {
+  return this.downloadMagnet(item.downloadUrl, self.getDownloadPath( item.mediaType ));
+}
+
+ 
+TransmissionDownloader.prototype.downloadMagnet = function( magnet, where ) {
   var self = this;
   return this.getSessionID().then(function( sessionid ) {
     return new Promise(function(resolve, reject) {
@@ -89,8 +95,8 @@ TransmissionDownloader.prototype.download = function( item ) {
         json: {
           method: 'torrent-add',
           arguments: {
-            'filename':     item.downloadUrl,
-            'download-dir': self.getDownloadPath( item )
+            'filename':     magnet,
+            'download-dir': where
           }
         },
         headers: {
@@ -111,9 +117,13 @@ TransmissionDownloader.prototype.download = function( item ) {
   });
 }
 
+// DEPRECATED
+TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
+  return this.removeId(item.hashString, deleteOnDisk);
+}
 
 // takes the item as generated in search, and removes from list (with delete option if present)
-TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
+TransmissionDownloader.prototype.removeId = function( id, deleteOnDisk ) {
   var self = this;
   return this.getSessionID().then(function( sessionid ) {
     return new Promise(function( resolve, reject ) {
@@ -127,7 +137,7 @@ TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
         json: {
           method: 'torrent-remove',
           arguments: {
-            'ids':               item.hashString,
+            'ids':               id,
             'delete-local-data': deleteOnDisk || false
           }
         },
@@ -140,7 +150,7 @@ TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
             util.format( '[Transmission] code: %s, body: %s', resp.statusCode, JSON.stringify(body) )
           ));
         } else {
-          self.logger.info( 'Successfully removed: ', item.name );
+          self.logger.info( 'Successfully removed: ', id );
           resolve( body );
         }
       });
@@ -149,7 +159,7 @@ TransmissionDownloader.prototype.remove = function( item, deleteOnDisk ) {
 }
 
 
-TransmissionDownloader.prototype.status = function( item ) {
+TransmissionDownloader.prototype.status = function() {
   var self = this;
   return this.getSessionID().then(function( sessionid ) {
     return new Promise(function( resolve, reject ) {
@@ -192,6 +202,7 @@ TransmissionDownloader.prototype.status = function( item ) {
             return {
               mediaType:         self.getMediaTypeFromPath( obj['downloadDir'] ),
               sourceId:          self.metadata.pluginId,
+              id:                obj.hashString,
               size:              obj.totalSize,
               startDate:         new Date( ( obj.startDate || obj.doneDate ) * 1000 ),  // this function expects milliseconds
               title:             obj.name,
@@ -214,12 +225,12 @@ TransmissionDownloader.prototype.status = function( item ) {
 }
 
 
-TransmissionDownloader.prototype.getDownloadPath = function ( item ) {
-  return this.mediaTypePathMap[ item.mediaType ] || 'other';
+TransmissionDownloader.prototype.getDownloadPath = function ( mediaType ) {
+  return path.resolve(this.mediaTypePathMap[ mediaType || 'default' ]);
 }
 
 TransmissionDownloader.prototype.getMediaTypeFromPath = function ( path ) {
-  return _.invert( this.mediaTypePathMap )[ path ] || 'other';
+  return _.invert( this.mediaTypePathMap )[ path ] || 'default';
 }
 
 

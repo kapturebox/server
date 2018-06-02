@@ -60,7 +60,13 @@ module.exports = {
 
     var statusPromises = plugins
       .getEnabledDownloaders()
-      .map((p) => p.status());
+      .map((p) => {
+        return p.status().map((s) => {
+          // get standardized ID for each plugin
+          const sid = Buffer.from(`${p.metadata.pluginId}:${s.id}`).toString('base64');
+          return Object.assign(s, {id: sid});
+        })
+      })
 
     return Promise
       .all(statusPromises)

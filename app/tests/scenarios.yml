@@ -100,6 +100,147 @@
           input: 
             method: "delete"
             url: "{$.env.host}/api/v1/series/{$.ctx.sourceId}/{$.ctx.id}"
+    trending: 
+      name: "Verify trending functionality"
+      steps: 
+        - 
+          type: "http"
+          name: "Get trending list"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/trending"
+          after: 
+            script: "tests['movies list > 0'] = output.body.get('movies').length > 0\ntests['series list > 0'] = output.body.get('series').length > 0\n"
+            transforms: 
+              - 
+                target: "$.ctx.movieEntry"
+                source: "output.body.movies[0]"
+              - 
+                target: "$.ctx.seriesEntry"
+                source: "output.body.series[0]"
+        - 
+          type: "http"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/trending/{$.ctx.movieEntry.sourceId}/info/{$.ctx.movieEntry.id}"
+          name: "Get info for top movie"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+              - 
+                target: "output.body.title"
+                op: "exists"
+    downloads: 
+      name: "Verify download functionality"
+      steps: 
+        - 
+          type: "http"
+          name: "Verify there are 0 downloads"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/downloads"
+          after: 
+            assertions: 
+              - 
+                target: "output.body"
+                op: "exists"
+            script: "tests['verify list is empty'] = output.body.get().length === 0;"
+        - 
+          type: "http"
+          name: "Search and capture some results"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/search"
+            query: 
+              q: "happy"
+          after: 
+            script: "const bdy = output.body.get();\n\nconst yt = _.filter(bdy, {sourceId: 'com_youtube'});\nconst tpb = _.filter(bdy, {sourceId: 'com_piratebay'});\n\ntests['youtube results > 0'] = yt.length > 0;\ntests['tpb results > 0'] = tpb.length > 0;\n\n$.ctx.set('yt', yt[0]);\n$.ctx.set('tpb', tpb[0]);\n"
+        - 
+          type: "http"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/method:{$.ctx.yt.downloadMechanism}/{$.ctx.yt.slug}"
+          name: "Start download from youtube via method"
+        - 
+          type: "http"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/method:{$.ctx.tpb.downloadMechanism}/{$.ctx.tpb.slug}"
+            query: 
+              where: "{$.ctx.tpb.mediaType}"
+          name: "Start download from tpb via method"
+        - 
+          type: "http"
+          name: "Verify there are 2 downloads"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/downloads"
+          after: 
+            assertions: 
+              - 
+                target: "output.body"
+                op: "exists"
+            script: "tests['verify list has 4 download entries'] = output.body.get().length === 2;\n\n$.ctx.set('todelete', output.body.get().map(function(e) {\n  return e.id;\n}));"
+        - 
+          type: "http"
+          name: "Delete download 1"
+          input: 
+            method: "delete"
+            url: "{$.env.host}/api/v1/downloads/{$.ctx.todelete[0]}"
+            query: 
+              fromDisk: "true"
+        - 
+          type: "http"
+          name: "Delete download 2"
+          input: 
+            method: "delete"
+            url: "{$.env.host}/api/v1/downloads/{$.ctx.todelete[1]}"
+            query: 
+              fromDisk: "true"
+        - 
+          type: "http"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/source:{$.ctx.yt.sourceId}/{$.ctx.yt.id}"
+          name: "Start download from youtube via source"
+        - 
+          type: "http"
+          input: 
+            method: "post"
+            url: "{$.env.host}/api/v1/downloads/source:{$.ctx.tpb.sourceId}/{$.ctx.tpb.id}"
+          name: "Start download from tpb via source"
+        - 
+          type: "http"
+          name: "Verify there are 2 downloads"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/downloads"
+          after: 
+            assertions: 
+              - 
+                target: "output.body"
+                op: "exists"
+            script: "tests['verify list has 4 download entries'] = output.body.get().length === 2;\n\n$.ctx.set('todelete', output.body.get().map(function(e) {\n  return e.id;\n}));"
+        - 
+          type: "http"
+          name: "Delete download 3"
+          input: 
+            method: "delete"
+            url: "{$.env.host}/api/v1/downloads/{$.ctx.todelete[0]}"
+            query: 
+              fromDisk: "true"
+        - 
+          type: "http"
+          name: "Delete download 4"
+          input: 
+            method: "delete"
+            url: "{$.env.host}/api/v1/downloads/{$.ctx.todelete[1]}"
+            query: 
+              fromDisk: "true"
+      description: "Verifies that we can search, get an ad-hoc download, and see it progress"
   utilities: {}
   before: 
     settings: 
