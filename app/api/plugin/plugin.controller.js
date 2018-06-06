@@ -2,7 +2,7 @@
 
 var _       = require('lodash');
 var plugins = require('../../components/plugin_handler');
-var config  = require('../../config/environment');
+var config  = require('../../config');
 
 // Get list of plugins
 exports.index = function(req, res) {

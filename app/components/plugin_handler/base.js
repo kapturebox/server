@@ -5,9 +5,9 @@ const persist = require('node-persist');
 const util = require('util');
 const path = require('path');
 const events = require('../events');
-const config = require('../../config/environment');
+const config = require('../../config');
 
-const stateStorePath = config.pluginStateStore;
+const stateStorePath = config.get('pluginStateStore');
 
 
 // constructor function for all plugins (After metadata has been set)
@@ -15,7 +15,7 @@ var Plugin = function () {
   this.config = config;
   this.events = events;
   this.logger = config.logger;
-  this.configKey = 'plugins[\'' + this.metadata.pluginId + '\']';
+  this.configKey = 'plugins.' + this.metadata.pluginId;
 
   try {
     this.stateStore = persist.create({
@@ -29,7 +29,7 @@ var Plugin = function () {
   }
 
   // init settings if not already present
-  if (!this.config.getUserSetting(this.configKey)) {
+  if(!this.config.getUserSetting(this.configKey)) {
     this.config.setUserSetting(this.configKey, this.defaultSettings || {});
   }
 
@@ -44,7 +44,11 @@ Plugin.prototype.getAllSettings = function () {
 
 Plugin.prototype.get = function (key) {
   const userKey = this.configKey + '.' + key;
-  return this.config.getUserSetting(userKey);
+  try {
+    return this.config.getUserSetting(userKey);
+  } catch(err) {
+    return undefined;
+  }
 }
 
 

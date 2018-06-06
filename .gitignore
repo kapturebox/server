@@ -3,3 +3,4 @@ settings.yml
 downloads/
 .vscode
 pluginStateStore
+app/config/config/local.yml

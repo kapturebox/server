@@ -12,7 +12,7 @@ const errorHandler = require('errorhandler');
 const path = require('path');
 const winstonExpress = require('express-winston');
 
-const config = require('./config/environment');
+const config = require('./config');
 
 
 module.exports = function( app ) {

@@ -3,7 +3,7 @@
 var _       = require('lodash');
 var Promise = require('bluebird');
 var ngrok   = require('ngrok');
-var config  = require('../../config/environment');
+var config  = require('../../config');
 var spawn   = require('child_process').spawn;
 
 var destHost = 'localhost';
@@ -13,7 +13,7 @@ var destPort = 22;
 // run ngrok if enabled .. outputs url to connect to to client
 // only 4 tunnels can run at a time with the basic subscription
 exports.index = function( req, res ) {
-  if( ! config.ngrokEnabled ) {
+  if( ! config.get('ngrokEnabled') ) {
     return res.status(501).json({ error: 'remote not enabled' });
   }
 
@@ -34,7 +34,7 @@ exports.index = function( req, res ) {
         }
 
         // kill ngrok after timeout time
-        setTimeout( endNgrok, config.ngrokTimeout );
+        setTimeout( endNgrok, config.get('ngrokTimeout') );
 
         // ensure ngrok is torn down when process dies
         ['beforeExit','SIGINT','SIGTERM','uncaughtException'].map(function(e) {
@@ -44,7 +44,7 @@ exports.index = function( req, res ) {
         res.status(200).json({
           dest: destHost + ':' + destPort,
           remoteUrl: url,
-          timeoutMs: config.ngrokTimeout
+          timeoutMs: config.get('ngrokTimeout')
         });
       });
     })
@@ -63,7 +63,7 @@ function setAuthToken( ng ) {
   return new Promise(function(resolve,reject) {
     var cmd = spawn(
       './ngrok',
-      ['authtoken',config.ngrokAuthToken],
+      ['authtoken',config.get('ngrokAuthToken')],
       {cwd: __dirname + '/../../node_modules/ngrok/bin'}
     );
 

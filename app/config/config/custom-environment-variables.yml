@@ -1,0 +1,6 @@
+env: NODE_ENV
+port: PORT
+ip: IP
+pluginStateStore: KAPTURE_STATE_STORE
+downloadPaths:
+  root: KAPTURE_DOWNLOAD_PATH

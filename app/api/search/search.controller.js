@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const search = require('./search');
-const config = require('../../config/environment');
+const config = require('../../config');
 const filterResults = require('../../components/results_filter');
 
 

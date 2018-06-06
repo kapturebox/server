@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 
 
 var plugins = require('../../components/plugin_handler');
-var config = require('../../config/environment');
+var config = require('../../config');
 
 
 // DEPRECATE THIS ENTIRE SERVICE

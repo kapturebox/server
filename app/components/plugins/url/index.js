@@ -1,15 +1,15 @@
 'use strict';
 
-var util          = require('util');
-var request       = require('request');
-var crypto        = require('crypto');
-var fs            = require('fs');
-var _             = require('lodash');
-var path          = require('path');
-var sanitize      = require('sanitize-filename');
-var Promise       = require('bluebird');
-var Url           = require('url');
-
+const util          = require('util');
+const request       = require('request');
+const crypto        = require('crypto');
+const fs            = require('fs');
+const _             = require('lodash');
+const path          = require('path');
+const sanitize      = require('sanitize-filename');
+const Promise       = require('bluebird');
+const Url           = require('url');
+const plugins       = require('../../plugin_handler');
 
 
 function KaptureURLHandler( options ) {
@@ -42,7 +42,7 @@ function KaptureURLHandler( options ) {
 KaptureURLHandler.prototype.download = function( item ) {
   var url = item.url;
 
-  var pluginsToSearch  = this.pluginHandler.getEnabledPlugins();
+  var pluginsToSearch  = plugins.getEnabledPlugins();
   var validDownloaders = _.filter( pluginsToSearch, function(p) {
     return typeof( p.urlMatches ) === 'function' && p.urlMatches( url );
   });

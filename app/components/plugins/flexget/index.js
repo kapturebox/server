@@ -1,11 +1,12 @@
 'use strict';
 
-var Promise = require('bluebird');
-var request = require('request');
-var util    = require('util');
-var _       = require('lodash');
-var Buffer  = require('buffer').Buffer;
-var YAML    = require('yamljs');
+const Promise = require('bluebird');
+const request = require('request');
+const util    = require('util');
+const _       = require('lodash');
+const Buffer  = require('buffer').Buffer;
+const YAML    = require('yamljs');
+const plugins = require('../../plugin_handler');
 
 
 // standard plugin metadata, and some additional flexget properties
@@ -45,7 +46,7 @@ var FlexgetDownloader = function( options ) {
     web_server: {
       bind: '0.0.0.0',
       port: 5050,
-      web_ui: this.config.env  === 'production' ? false : true
+      web_ui: this.config.get('env')  === 'production' ? false : true
     },
   };
 
@@ -100,7 +101,7 @@ var FlexgetDownloader = function( options ) {
 FlexgetDownloader.prototype.download = function( item ) {
   var self = this;
   return new Promise(function( resolve, reject ) {
-    var destPlugin = self.pluginHandler.getPlugin( item.sourceId );
+    var destPlugin = plugins.getPlugin( item.sourceId );
 
     // maintain state in individual plugin
     return destPlugin
@@ -132,7 +133,7 @@ function parseSlug(slug) {
 
 FlexgetDownloader.prototype.downloadSlug = function(slug) {
   const pSlug = parseSlug(slug);
-  const plugin = this.pluginHandler.getPlugin(pSlug.pluginId);
+  const plugin = plugins.getPlugin(pSlug.pluginId);
 
   return plugin
     .downloadId(pSlug.entryId);
@@ -223,7 +224,7 @@ FlexgetDownloader.prototype.updateTask = function( taskConfig ) {
 FlexgetDownloader.prototype.removeSlug = function( slug, deleteOnDisk ) {
   const self = this;
   const pSlug = parseSlug(slug);
-  const destPlugin  = this.pluginHandler.getPlugin(pSlug.sourceId);
+  const destPlugin  = plugins.getPlugin(pSlug.sourceId);
 
   // maintain state in individual plugin
   return destPlugin
@@ -248,7 +249,7 @@ FlexgetDownloader.prototype.getModelsAndUpdateFlexget = function() {
   this.logger.debug('[flexget] updating model..');
 
   const flexgetPlugins = _.filter(
-    this.pluginHandler.getEnabledPluginsOfType('series'), 
+    plugins.getEnabledPluginsOfType('series'), 
     (p) => {
       return typeof p.flexgetTaskModel === 'function'
         &&   typeof p.flexgetTemplateModel === 'function'

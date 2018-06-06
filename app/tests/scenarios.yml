@@ -4,6 +4,67 @@
   settings: 
     testing: 
       oas2: []
+  before: 
+    settings: 
+      name: "Ensure settings are set properly"
+      description: "Tests some basic settings stuff, and ensures that last step allows for all sources to be enabled properly"
+      steps: 
+        - 
+          type: "http"
+          name: "Get settings"
+          input: 
+            method: "get"
+            url: "{$.env.host}/api/v1/settings"
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 200
+              - 
+                target: "output.body.downloadPaths"
+                op: "exists"
+            transforms: 
+              - 
+                target: "$.ctx.settings"
+                source: "output.body"
+        - 
+          type: "http"
+          name: "Change all settings to something silly"
+          input: 
+            method: "put"
+            url: "{$.env.host}/api/v1/settings"
+            headers: 
+              Content-Type: "application/json"
+            body: "{$.ctx.badSettings}"
+          before: 
+            script: "\n$.ctx.set('badSettings', {\n  downloadPaths: {},\n  plugins: {},\n  system: {\n    name: \"woohoo\"\n  },\n  userInfo: {}\n});  \n"
+          after: 
+            script: "const mergedSettings = _.merge($.ctx.get('settings'), $.ctx.get('badSettings'));\n\n\ntests['bad config comes back'] = _.isEqual(output.body.get(), mergedSettings);"
+        - 
+          type: "http"
+          name: "Re-enable the previous settings via PUT"
+          input: 
+            method: "put"
+            url: "{$.env.host}/api/v1/settings"
+            body: "{$.ctx.settings}"
+        - 
+          type: "http"
+          name: "Update settings to enable proper plugins for test runs"
+          input: 
+            method: "patch"
+            url: "{$.env.host}/api/v1/settings"
+            body: "{\n\t\"plugins\": {\n  \t\"com_flexget\": {\n      \"enabled\": true\n    },\n  \t\"com_kapture_url\": {\n      \"enabled\": true\n    },\n  \t\"com_piratebay\": {\n      \"enabled\": true\n    },\n  \t\"com_transmissionbt\": {\n      \"enabled\": true\n    },\n  \t\"com_youtube\": {\n      \"enabled\": true\n    },\n  \t\"info_showrss\": {\n      \"enabled\": true\n    },\n  \t\"tv_trakt\": {\n      \"enabled\": true\n    }\n  }\n}"
+            headers: 
+              Content-Type: "application/json"
+          before: {}
+          after: 
+            assertions: 
+              - 
+                target: "output.status"
+                op: "eq"
+                expected: 202
+            script: "const enabledKeys = [\n  'plugins.com_flexget.enabled',\n  'plugins.com_kapture_url.enabled',\n  'plugins.com_piratebay.enabled',\n  'plugins.com_transmissionbt.enabled',\n  'plugins.com_youtube.enabled',\n  'plugins.info_showrss.enabled',\n  'plugins.tv_trakt.enabled'\n];\n\nenabledKeys.forEach(function (k) {\n  tests[k + ' is enabled'] = output.body.get(k) === true;\n});\n"
   scenarios: 
     series: 
       name: "Verify series functionality works"
@@ -120,10 +181,10 @@
                 source: "output.body.series[0]"
         - 
           type: "http"
+          name: "Get info for top movie"
           input: 
             method: "get"
             url: "{$.env.host}/api/v1/trending/{$.ctx.movieEntry.sourceId}/info/{$.ctx.movieEntry.id}"
-          name: "Get info for top movie"
           after: 
             assertions: 
               - 
@@ -135,6 +196,7 @@
                 op: "exists"
     downloads: 
       name: "Verify download functionality"
+      description: "Verifies that we can search, get an ad-hoc download, and see it progress"
       steps: 
         - 
           type: "http"
@@ -160,18 +222,18 @@
             script: "const bdy = output.body.get();\n\nconst yt = _.filter(bdy, {sourceId: 'com_youtube'});\nconst tpb = _.filter(bdy, {sourceId: 'com_piratebay'});\n\ntests['youtube results > 0'] = yt.length > 0;\ntests['tpb results > 0'] = tpb.length > 0;\n\n$.ctx.set('yt', yt[0]);\n$.ctx.set('tpb', tpb[0]);\n"
         - 
           type: "http"
+          name: "Start download from youtube via method"
           input: 
             method: "post"
             url: "{$.env.host}/api/v1/downloads/method:{$.ctx.yt.downloadMechanism}/{$.ctx.yt.slug}"
-          name: "Start download from youtube via method"
         - 
           type: "http"
+          name: "Start download from tpb via method"
           input: 
             method: "post"
             url: "{$.env.host}/api/v1/downloads/method:{$.ctx.tpb.downloadMechanism}/{$.ctx.tpb.slug}"
             query: 
               where: "{$.ctx.tpb.mediaType}"
-          name: "Start download from tpb via method"
         - 
           type: "http"
           name: "Verify there are 2 downloads"
@@ -202,16 +264,16 @@
               fromDisk: "true"
         - 
           type: "http"
+          name: "Start download from youtube via source"
           input: 
             method: "post"
             url: "{$.env.host}/api/v1/downloads/source:{$.ctx.yt.sourceId}/{$.ctx.yt.id}"
-          name: "Start download from youtube via source"
         - 
           type: "http"
+          name: "Start download from tpb via source"
           input: 
             method: "post"
             url: "{$.env.host}/api/v1/downloads/source:{$.ctx.tpb.sourceId}/{$.ctx.tpb.id}"
-          name: "Start download from tpb via source"
         - 
           type: "http"
           name: "Verify there are 2 downloads"
@@ -240,67 +302,5 @@
             url: "{$.env.host}/api/v1/downloads/{$.ctx.todelete[1]}"
             query: 
               fromDisk: "true"
-      description: "Verifies that we can search, get an ad-hoc download, and see it progress"
   utilities: {}
-  before: 
-    settings: 
-      name: "Ensure settings are set properly"
-      steps: 
-        - 
-          type: "http"
-          name: "Get settings"
-          input: 
-            method: "get"
-            url: "{$.env.host}/api/v1/settings"
-          after: 
-            assertions: 
-              - 
-                target: "output.status"
-                op: "eq"
-                expected: 200
-              - 
-                target: "output.body.downloadPaths"
-                op: "exists"
-            transforms: 
-              - 
-                target: "$.ctx.settings"
-                source: "output.body"
-        - 
-          type: "http"
-          name: "Change all settings to something silly"
-          input: 
-            method: "put"
-            url: "{$.env.host}/api/v1/settings"
-            headers: 
-              Content-Type: "application/json"
-            body: "{$.ctx.badSettings}"
-          after: 
-            script: "tests['bad config comes back'] = _.isEqual(output.body.get(), $.ctx.get('badSettings'));"
-          before: 
-            script: "\n$.ctx.set('badSettings', {\n  downloadPaths: {},\n  plugins: {},\n  system: {\n    hostName: \"woohoo\"\n  },\n  userInfo: {}\n});  \n"
-        - 
-          type: "http"
-          name: "Re-enable the previous settings via PUT"
-          input: 
-            method: "put"
-            url: "{$.env.host}/api/v1/settings"
-            body: "{$.ctx.settings}"
-        - 
-          type: "http"
-          name: "Update settings to enable proper plugins for test runs"
-          input: 
-            method: "patch"
-            url: "{$.env.host}/api/v1/settings"
-            body: "{\n\t\"plugins\": {\n  \t\"com_flexget\": {\n      \"enabled\": true\n    },\n  \t\"com_kapture_url\": {\n      \"enabled\": true\n    },\n  \t\"com_piratebay\": {\n      \"enabled\": true\n    },\n  \t\"com_transmissionbt\": {\n      \"enabled\": true\n    },\n  \t\"com_youtube\": {\n      \"enabled\": true\n    },\n  \t\"info_showrss\": {\n      \"enabled\": true\n    },\n  \t\"tv_trakt\": {\n      \"enabled\": true\n    }\n  }\n}"
-            headers: 
-              Content-Type: "application/json"
-          after: 
-            assertions: 
-              - 
-                target: "output.status"
-                op: "eq"
-                expected: 202
-            script: "const enabledKeys = [\n  'plugins.com_flexget.enabled',\n  'plugins.com_kapture_url.enabled',\n  'plugins.com_piratebay.enabled',\n  'plugins.com_transmissionbt.enabled',\n  'plugins.com_youtube.enabled',\n  'plugins.info_showrss.enabled',\n  'plugins.tv_trakt.enabled'\n];\n\nenabledKeys.forEach(function (k) {\n  tests[k + ' is enabled'] = output.body.get(k) === true;\n});\n"
-          before: {}
-      description: "Tests some basic settings stuff, and ensures that last step allows for all sources to be enabled properly"
 

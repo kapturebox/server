@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var _       = require('lodash');
-var config  = require('../../config/environment');
+var config  = require('../../config');
 
 var plugins = require('../../components/plugin_handler');
 

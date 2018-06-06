@@ -1,14 +1,14 @@
 'use strict';
 
-var Promise = require('bluebird');
-var request = require('request');
-var _ = require('lodash');
-var util = require('util');
-var path = require('path');
-
-var xpath = require('xpath');
-var dom = require('xmldom').DOMParser;
-var xml2js = require('xml2json-light');
+const Promise = require('bluebird');
+const request = require('request');
+const _ = require('lodash');
+const util = require('util');
+const path = require('path');
+const xpath = require('xpath');
+const dom = require('xmldom').DOMParser;
+const xml2js = require('xml2json-light');
+const plugins = require('../../plugin_handler');
 
 
 var ShowRssSource = function (options) {
@@ -58,7 +58,7 @@ ShowRssSource.prototype.search = function (query) {
       var shownames = _.filter(shownames_xml, function (e) {
         return e.firstChild !== undefined;
       }).map(function (e) {
-        const slug = `info_showrss:${e.getAttribute('value')}`
+        const slug = Buffer(`info_showrss:${e.getAttribute('value')}`).toString('base64');
 
         return {
           sourceId: self.metadata.pluginId,
@@ -261,7 +261,7 @@ ShowRssSource.prototype.enableId = function (id) {
       self.setState(id, info);
       self.events.emit('continuous:added', info);
       returnedInfo = info;
-      return self.pluginHandler.getPlugin('com_flexget').getModelsAndUpdateFlexget();
+      return plugins.getPlugin('com_flexget').getModelsAndUpdateFlexget();
     })
     .then(() => returnedInfo);
 }
@@ -292,7 +292,7 @@ ShowRssSource.prototype.getEnabledSeries = function () {
 }
 
 ShowRssSource.prototype.flexgetTemplateModel = function () {
-  var transmissionConfig = this.pluginHandler.getPlugin('com_transmissionbt');
+  const transmissionConfig = plugins.getPlugin('com_transmissionbt');
 
   return {
     showrss: {

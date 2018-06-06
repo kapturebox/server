@@ -10,7 +10,7 @@ module.exports = function() {
     loglevel = process.env.LOG_LEVEL;
   } else if( process.env.NODE_ENV === 'development' ) {
     loglevel = 'debug';
-  }
+  } 
 
   console.log( util.format( 'environment: %s, log level: %s', process.env.NODE_ENV, loglevel ));
 

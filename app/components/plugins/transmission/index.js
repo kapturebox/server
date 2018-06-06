@@ -38,7 +38,9 @@ var TransmissionDownloader = function( options ) {
   // TODO: add a path.resolve to the values below
   this.mediaTypePathMap = {
     'movie'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
+    'movies'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
     'video'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
+    'videos'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies') ),
     'tvshow' : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows') ),
     'audio'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),
     'music'  : path.join( this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music') ),

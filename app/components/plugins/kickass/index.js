@@ -3,7 +3,7 @@
 var Promise = require('bluebird');
 var request = require('request');
 var util    = require('util');
-var config  = require('../../../config/environment');
+var config  = require('../../../config');
 
 var KAT_JSON_URL = 'https://kat.cr/json.php';
 

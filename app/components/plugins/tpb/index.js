@@ -1,11 +1,10 @@
 'use strict';
 
-var Promise = require('bluebird');
-var request = require('request');
-var util    = require('util');
-var tpb     = require('thepiratebay');
-
-var Plugin = require('../../plugin_handler/plugin_base');
+const Promise = require('bluebird');
+const request = require('request');
+const util    = require('util');
+const tpb     = require('thepiratebay');
+const plugins = require('../../plugin_handler');
 
 // do some funky date stuff .. extends Date
 require('datejs');
@@ -85,8 +84,7 @@ ThepiratebaySource.prototype.downloadId = function( id ) {
     .getTorrent(id)
     .then((result) => {
       const magnetLink = result.magnetLink;
-      return self
-        .pluginHandler
+      return plugins
         .getPlugin('com_transmissionbt')
         .downloadSlug(magnetLink);
   });

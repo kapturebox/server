@@ -295,7 +295,7 @@
           400: 
             description: "Invalid `methodId` provided"
         summary: "Start download based on download method"
-        description: "Starts a new download based on `methodId` download provider of `slug` value provided by source"
+        description: "Starts a new download based on `methodId` download provider of `slug` value provided by source.\n\nIn order to allow for various content in the `slug` field, **this field must be base64 encoded**.  Generally source plugins will return the slug in this format."
         operationId: "startdownloadfrommethod"
         tags: 
           - "Downloading"
