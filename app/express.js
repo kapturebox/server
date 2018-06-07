@@ -37,6 +37,10 @@ module.exports = function( app ) {
   // new swagger based url system
   require('./routes.v1')(app);
 
+  // health check url
+  // TODO: make it do some real stuff
+  app.get('/health', (req, res, next) => res.status(200).send());
+
   // send errors to logger
   app.use(
     winstonExpress.errorLogger({

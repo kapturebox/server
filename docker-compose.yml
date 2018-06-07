@@ -20,6 +20,7 @@ services:
       FLEXGET_PASSWORD: mySuperPassword
       KAPTURE_DOWNLOAD_PATH: /media
       KAPTURE_PLUGIN_STORE: /config/pluginStateStore
+      LOG_LEVEL: debug
     ports:
       - '9000:9000'
 
@@ -43,9 +44,10 @@ services:
     ports:
       - "5050:5050"
 
-  plex:
-    image: plexinc/pms-docker
-    ports: 
-      - '32400:32400'
-    volumes:
-      - media:/media
+  # not necessary at the moment..
+  # plex:
+  #   image: plexinc/pms-docker
+  #   ports: 
+  #     - '32400:32400'
+  #   volumes:
+  #     - media:/media
