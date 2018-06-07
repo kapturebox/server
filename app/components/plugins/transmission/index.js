@@ -32,8 +32,6 @@ var TransmissionDownloader = function( options ) {
 
   TransmissionDownloader.super_.apply( this, arguments );
 
-  this.logger.debug( '[TODO] this needs to be fixed, should not be instantiated every time we need to use transmission' );
-
   // TODO: optimize this messyness
   // TODO: add a path.resolve to the values below
   this.mediaTypePathMap = {
