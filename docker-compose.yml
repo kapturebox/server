@@ -1,0 +1,51 @@
+version: '2.3'
+
+volumes:
+  media:
+  config:
+
+services:
+  server:
+    build: .
+    image: kapturebox/server
+    volumes:
+      - config:/config
+      - media:/media
+      - /app/node_modules
+      - ./app:/app
+    environment:
+      TRANSMISSION_USER: admin
+      TRANSMISSION_PASS: password
+      FLEXGET_USERNAME: flexget
+      FLEXGET_PASSWORD: mySuperPassword
+      KAPTURE_DOWNLOAD_PATH: /media
+      KAPTURE_PLUGIN_STORE: /config/pluginStateStore
+    ports:
+      - '9000:9000'
+
+  transmission:
+    image: dperson/transmission
+    ports:
+      - '51413:51413'
+      - '51413:51413/udp'
+      - '9091:9091'
+    environment:
+      TRUSER: admin
+      TRPASSWD: password
+      USERID: 0
+    volumes:
+      - media:/media
+
+  flexget:
+    image: gaieges/flexget
+    environment:
+      FLEXGET_PASSWORD: mySuperPassword
+    ports:
+      - "5050:5050"
+
+  plex:
+    image: plexinc/pms-docker
+    ports: 
+      - '32400:32400'
+    volumes:
+      - media:/media
