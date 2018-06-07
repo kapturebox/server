@@ -84,6 +84,9 @@ YoutubeSource.prototype.url = function (url) {
         self.logger.error('[Youtube] cant download %s: %s', kapResult.id, err.toString());
       }
 
+      // gets rid of annoying warnings from youtube-dl lib
+      delete kapResult.sourceData.resolution;
+
       resolve(kapResult);
     });
 
@@ -145,7 +148,7 @@ YoutubeSource.prototype.transformDownloadResult = function (result) {
         this.config.getUserSetting('downloadPaths.default'), 
         sanitize(result._filename)
     )), 
-    sourceInfo: result
+    sourceData: result
   };
 
 }
