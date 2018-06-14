@@ -2,39 +2,29 @@
 
 # Base plugin
 
-All plugins entrypoints should be a class, and are required to have a `metadata` object that looks similar to the following:
+All plugins should be a ES6 JS class, and are required to have a `metadata` object that gets passed to the `super(metadata, defaultSettings)`.  The basis for a plugin should look similar to the following:
 
 ```js
-var ShowRssSource = function (options) {
-  this.metadata = {
-    pluginId: 'info_showrss',                         // Unique ID of plugin
-    pluginName: 'ShowRss',                            // Display name of plugin
-    pluginTypes: ['source'],                          // 'source', 'downloader', 'player', 'trending'
+const Plugin = require('../../plugin_handler/base');
 
-    // additional info about plugin
-    link: 'http://showrss.info/',                     // Link to provider site
-    description: 'Updated feed of TV shows'           // Description of plugin provider
-
-    // in the case of a 'source' plugin
-    sourceType: 'continuous',                         // 'adhoc', 'continuous'
-
-    // in the case of a 'downloader' plugin
-    // downloadProviders: 'torrent',                  // any method of download this plugin can handle
-
-    // optional - ensures other plugins are also enabled
-    requires: ['com_flexget', 'com_transmissionbt'],  // this plugin requires the flexget plugin
-  };
-
-  // a object that will be used to store default settings and will be set
-  // in the user settings if not present
-  this.defaultSettings = {
-    enabled: true
-  };
+class ShowRssSource extends Plugin {
+  constructor() {
+    const metadata = {
+      pluginId: 'info_showrss',                 // Unique ID of plugin
+      pluginName: 'ShowRss',                    // Display name of plugin
+      pluginTypes: ['source', 'series'],         // 'source', 'downloader', 'player'
+      sourceType: 'continuous',                 // 'adhoc', 'continuous'
+      requires: ['com_flexget', 'com_transmissionbt'],  // this plugin requires the flexget plugin
+      link: 'http://showrss.info/',             // Link to provider site
+      description: 'Updated feed of TV shows'   // Description of plugin provider
+    };
   
-
-  ShowRssSource.super_.apply(this, arguments);
-
-  return this;
+    const defaultSettings = {
+      enabled: true
+    };
+  
+    super(metadata, defaultSettings);
+  }
 }
 ```
 

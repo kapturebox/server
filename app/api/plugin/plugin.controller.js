@@ -1,4 +1,4 @@
-'use strict';
+
 
 var _       = require('lodash');
 var plugins = require('../../components/plugin_handler');

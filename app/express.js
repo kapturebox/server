@@ -2,7 +2,7 @@
  * Express configuration
  */
 
-'use strict';
+
 
 const express = require('express');
 const compression = require('compression');
