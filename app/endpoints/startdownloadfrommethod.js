@@ -5,19 +5,11 @@
  * 
  */
 const plugins = require('../components/plugin_handler');
-// const config = require('../config');
-// const _ = require('lodash');
 
 exports.handler = function startdownloadfrommethod(req, res, next) {
   const methodId = req.params.methodId;
   const slug = Buffer.from(req.params.slug, 'base64').toString('ascii');
-  const where = req.query.where || 'default';
-
-  // const targets = Object.keys(config.getUserSetting().downloadPaths);
-
-  // if(!_.includes(targets, where)) {
-  //   return next(new Error(`${where} is not a valid target path, options: ${targets.join(',')}`));
-  // }
+  const where = req.query.where;
 
   plugins
     .getDownloadMechanismProvider(methodId)

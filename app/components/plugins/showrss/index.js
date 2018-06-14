@@ -33,7 +33,6 @@ class ShowRssSource extends Plugin {
     };
   
     super(metadata, defaultSettings);
-  
   }
 
 

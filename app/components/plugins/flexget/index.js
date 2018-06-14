@@ -227,7 +227,7 @@ class FlexgetDownloader extends Plugin {
       .then(this.getModelsAndUpdateFlexget);
   }
 
-  removeDownloadId(id, deleteOnDisk) {
+  removeDownloadId(id, fromDisk) {
     return Promise.reject(new Error('Flexget: removeDownloadId: not yet implemented'));
   }
 

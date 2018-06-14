@@ -55,8 +55,8 @@ class TransmissionDownloader extends Plugin {
   }
 
 
-  removeDownloadId(id, deleteFromDisk) {
-    return this.removeId(id, deleteFromDisk);
+  removeDownloadId(id, fromDisk) {
+    return this.removeId(id, fromDisk);
   }
 
 
