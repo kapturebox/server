@@ -16,7 +16,7 @@ class KaptureURLHandler extends Plugin {
       pluginName: 'Kapture URL Handler', // Display name of plugin
       pluginTypes: ['downloader'], // 'source', 'downloader', 'player'
       sourceTypes: 'adhoc', // 'adhoc', 'continuous'
-      link: 'https://kapture.com', // Link to provider site
+      link: 'http://kapturebox.com', // Link to provider site
       downloadProviders: 'url', // if plugin can also download, what
       // downloadMechanism can it download?
       description: 'Simple URL download handler' // Description of plugin provider
