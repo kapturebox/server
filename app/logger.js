@@ -1,4 +1,4 @@
-'use strict';
+
 
 var winston = require('winston');
 var util = require('util');

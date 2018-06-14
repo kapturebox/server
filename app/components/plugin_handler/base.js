@@ -1,4 +1,4 @@
-'use strict';
+
 
 const fs = require('fs');
 const persist = require('node-persist');
@@ -9,96 +9,122 @@ const config = require('../../config');
 
 const stateStorePath = config.get('pluginStateStore');
 
+class Plugin {
+  // constructor function for all plugins (After metadata has been set)
+  constructor(metadata, defaultSettings) {
+    if( !metadata )
+      throw new Error('metadata must be provided to Plugin constructor')
 
-// constructor function for all plugins (After metadata has been set)
-var Plugin = function () {
-  this.config = config;
-  this.events = events;
-  this.logger = config.logger;
-  this.configKey = 'plugins.' + this.metadata.pluginId;
+    this.metadata = metadata;
+    this.defaultSettings = defaultSettings || {'enabled': true};
+    this.config = config;
+    this.events = events;
+    this.logger = config.logger;
+    this.configKey = util.format('plugins.%s', this.metadata.pluginId);
 
-  try {
-    this.stateStore = persist.create({
-      dir: path.join(stateStorePath, this.metadata.pluginId || 'base'),
-      interval: 1000 // 1s save to disk interval
-    });
+    try {
+      this.stateStore = persist.create({
+        dir: path.join(stateStorePath, this.metadata.pluginId || 'base'),
+        interval: 1000 // 1s save to disk interval
+      });
 
-    this.stateStore.initSync();
-  } catch (err) {
-    this.logger.error('unable to init state store: %s', err.toString());
+      this.stateStore.initSync();
+    } catch (err) {
+      this.logger.error('unable to init state store: %s', err.toString());
+    }
+
+    // init settings if not already present
+    if (!this.config.getUserSetting(this.configKey)) {
+      this.config.setUserSetting(this.configKey, this.defaultSettings || {});
+    }
   }
 
-  // init settings if not already present
-  if(!this.config.getUserSetting(this.configKey)) {
-    this.config.setUserSetting(this.configKey, this.defaultSettings || {});
+  /**
+   * Returns all of the config values in an object
+   */
+  getAllSettings() {
+    return this.config.getUserSetting(this.configKey);
   }
 
-  return this;
-}
+  /**
+   * Gets a config value from the plugin config store
+   * @param {String} key  the key to get
+   */
+  get(key) {
+    const userKey = this.configKey + '.' + key;
+    try {
+      return this.config.getUserSetting(userKey);
+    } catch (err) {
+      return undefined;
+    }
+  }
 
+  /**
+   * Sets a config value in the plugin config store
+   * @param {String} key       key of to set
+   * @param {String} value     value to set key to
+   */
+  set(key, value) {
+    const userKey = this.configKey + '.' + key;
+    return this.config.setUserSetting(userKey, value);
+  }
 
-Plugin.prototype.getAllSettings = function () {
-  return this.config.getUserSetting(this.configKey);
-}
+  /**
+   * Set key in plugin state store to a specific value
+   * @param {String} key             key to set
+   * @param {Object, String} value   value to set it to
+   */
+  setState(key, value) {
+    return this.stateStore.setItemSync(key, value);
+  }
 
+  /**
+   * Get current value from statestore of key 
+   * @param {String} key  key to get
+   */
+  getState(key) {
+    if (!key) { // then return array of all
+      return this.stateStore.values();
+    } else {
+      return this.stateStore.getItemSync(key);
+    }
+  }
 
-Plugin.prototype.get = function (key) {
-  const userKey = this.configKey + '.' + key;
-  try {
-    return this.config.getUserSetting(userKey);
-  } catch(err) {
-    return undefined;
+  /**
+   * Removes a key from state store
+   * @param {String} key key to remove from state store
+   */
+  removeState(key) {
+    return this.stateStore.removeItemSync(key);
+  }
+
+  /**
+   * Standard method to output string value of plugin item
+   */
+  toString() {
+    return util.format('%s', this.metadata.pluginName);
+  }
+
+  /**
+   * Returns true or false depending on whether the plugin is enabled or not
+   */
+  isEnabled() {
+    return this.get('enabled') || false;
+  }
+
+  /**
+   * Enable this plugin
+   */
+  enable() {
+    return this.set('enabled', true);
+  }
+
+  /**
+   * Disable current plugin
+   */
+  disable() {
+    return this.set('enabled', false);
   }
 }
-
-
-
-Plugin.prototype.set = function (key, value) {
-  const userKey = this.configKey + '.' + key;
-  return this.config.setUserSetting(userKey, value);
-}
-
-
-
-Plugin.prototype.setState = function (key, value) {
-  return this.stateStore.setItemSync(key, value);
-}
-
-
-
-Plugin.prototype.getState = function (key) {
-  if (!key) { // then return array of all
-    return this.stateStore.values();
-  } else {
-    return this.stateStore.getItemSync(key);
-  }
-}
-
-
-Plugin.prototype.removeState = function (key) {
-  return this.stateStore.removeItemSync(key);
-}
-
-
-
-Plugin.prototype.toString = function () {
-  return util.format('%s', this.metadata.pluginName);
-}
-
-
-Plugin.prototype.isEnabled = function () {
-  return this.get('enabled') || false;
-};
-
-
-Plugin.prototype.enable = function () {
-  return this.set('enabled', true);
-};
-
-
-Plugin.prototype.disable = function () {
-  return this.set('enabled', false);
-};
-
 
 module.exports = Plugin;

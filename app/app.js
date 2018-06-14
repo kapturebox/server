@@ -2,7 +2,7 @@
  * Main application file
  */
 
-'use strict';
+
 
 
 const express = require('express');
