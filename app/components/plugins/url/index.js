@@ -60,34 +60,43 @@ class KaptureURLHandler extends Plugin {
   url(url) {
     var self = this;
 
-    return new Promise(function (resolve, reject) {
-      var dest = self.getDestPath(url);
+    if( where ) {
+      this.logger.warn(`[KaptureUrlDownloader] where argument "${where}" ignored.. not yet supported`);
+    }
 
-      // initially get content-type to try to figure out what type it is
-      request.head(url)
-        .on('error', reject)
-        .on('response', function (head) {
-          self.logger.debug('head:', head.headers);
 
-          try {
-            // goes off and does its thing asyncronously
-            // we do this via try/catch because we want a quick response to say
-            // download started, not wait til it's finished to report back
-            self.handleMediaType(url, head);
-          } catch (err) {
-            return reject(err);
-          }
+  return new Promise(function( resolve, reject ) {
+    // initially get content-type to try to figure out what type it is
+    request.head( url )
+      .on( 'error', reject )
+      .on( 'response', function( head ) {
+        self.logger.debug( 'head:', head.headers );
 
-          // send back to client that download is in progress, then find status 
-          // via normal download status method
-          return resolve({
-            url: url,
-            contentType: head.headers['content-type'] || 'text/plain'
-          });
-        })
+        // initially get content-type to try to figure out what type it is
+        request.head(url)
+          .on('error', reject)
+          .on('response', function (head) {
+            self.logger.debug('head:', head.headers);
 
+            try {
+              // goes off and does its thing asyncronously
+              // we do this via try/catch because we want a quick response to say
+              // download started, not wait til it's finished to report back
+              self.handleMediaType(url, head);
+            } catch (err) {
+              return reject(err);
+            }
+
+            // send back to client that download is in progress, then find status 
+            // via normal download status method
+            return resolve({
+              url: url,
+              contentType: head.headers['content-type'] || 'text/plain'
+            });
+          })
+      });
     });
-  };
+  }
 
 
 
@@ -212,9 +221,8 @@ class KaptureURLHandler extends Plugin {
 
 
   downloadSlug(slug) {
-    return Promise.reject(new Error('KaptureURLHandler: downloadSlug() not yet implemented'));
+    return this.url(slug, where);
   }
-
 
   ///////////
   // HELPERS
@@ -225,18 +233,23 @@ class KaptureURLHandler extends Plugin {
 
 
   getDestPath(url, mediaPathSetting) {
-    return path.join(
-      this.config.getUserSetting('downloadPaths.root'),
-      this.config.getUserSetting(mediaPathSetting || 'downloadPaths.default'),
-      this.getFilename(url)
+    return path.join( 
+      this.config.getUserSetting( 'downloadPaths.root' ), 
+      this.config.getUserSetting( 'downloadPaths.' + (mediaPathSetting || 'default') ),   
+      this.getFilename( url )
     );
   }
 
-
   getFilename(url) {
-    return sanitize(
-      _.last(Url.parse(url).pathname.split('/')) // grabs filename of url 
-    );
+    const urlObj = Url.parse( url );
+
+    if( /https?:/.test(urlObj.protocol) ) {
+      return sanitize( 
+        _.last( urlObj.pathname.split('/') ) // grabs filename of url 
+      );
+    } else {
+      return undefined;
+    }
   }
 
 
@@ -255,21 +268,19 @@ class KaptureURLHandler extends Plugin {
   }
 
 
-
   assumeDownloadPathFromCtype(contentType) {
-    if (/^image\/.*/.test(contentType)) {
-      return 'downloadPaths.photos';
-    } else if (/^audio\/.*/.test(contentType)) {
-      return 'downloadPaths.music';
-    } else if (/^video\/.*/.test(contentType)) {
-      return 'downloadPaths.movies';
-    } else if (/^(text|application)\/.*/.test(contentType)) {
-      return 'downloadPaths.default';
-    } else {
-      return 'downloadPaths.default';
-    }
+    if( /^image\/.*/.test( contentType ) ) {
+      return 'photos';
+    } else if( /^audio\/.*/.test( contentType ) ) {
+      return 'music';
+    } else if( /^video\/.*/.test( contentType ) ) {
+      return 'movies';
+    } else if( /^(text|application)\/.*/.test( contentType ) ) { 
+      return 'default';
+    } else { 
+      return 'default';
+    } 
   }
-
 }
 
 
