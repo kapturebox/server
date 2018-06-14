@@ -2,7 +2,7 @@
  * Main application routes
  */
 
-'use strict';
+
 
 const path = require('path');
 

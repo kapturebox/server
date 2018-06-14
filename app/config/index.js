@@ -6,8 +6,6 @@ const path = require('path');
 // set proper config dir, if needed
 process.env.NODE_CONFIG_DIR = process.env.NODE_CONFIG_DIR || path.resolve(path.join(__dirname, 'config'));
 
-// process.env['NODE_ENV'] = process.env.NODE_ENV || 'default';
-
 const config = require('config');
 const localSettingsFile = path.join(process.env.NODE_CONFIG_DIR, 'local.yml');
 
@@ -35,7 +33,7 @@ exports.set = (key, value) => {
     this.logger.debug( 'writing settings file: %s', JSON.stringify(newObj, null, 4) );
   } else if( typeof( key ) === 'string' ) {
     newObj = _.set( original, key, value );
-    this.logger.debug( 'writing setting: %s = %s', key, value );
+    this.logger.debug( 'writing setting %s =', key, value );
   } else {
     throw new TypeError('cant change setting - need valid key in proper format (string or object)');
   }
