@@ -287,8 +287,8 @@ class YoutubeSource extends Plugin {
 
 
   // DEPRECATED
-  remove(item, deleteFromDisk) {
-    return this.removeDownloadId(item.id, deleteFromDisk);
+  remove(item, fromDisk) {
+    return this.removeDownloadId(item.id, fromDisk);
   }
 
 

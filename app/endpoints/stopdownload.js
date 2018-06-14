@@ -11,7 +11,11 @@ exports.handler = function stopdownload(req, res, next) {
   const id = req.params.id;
   const fromDisk = req.params.fromDisk || false;
 
-  const buf = Buffer.from(id, 'base64').toString('ascii').split(':');
+  const buf = Buffer
+    .from(id, 'base64')
+    .toString('ascii')
+    .split(':');
+
   const downloaderId = buf[0];
   const entryId = buf[1];
 

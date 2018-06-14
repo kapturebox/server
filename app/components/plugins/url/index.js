@@ -57,72 +57,67 @@ class KaptureURLHandler extends Plugin {
 
 
 
-  url(url) {
+  url(url, where) {
     var self = this;
 
-    if( where ) {
-      this.logger.warn(`[KaptureUrlDownloader] where argument "${where}" ignored.. not yet supported`);
-    }
+    return new Promise(function (resolve, reject) {
+      // initially get content-type to try to figure out what type it is
+      request.head(url)
+        .on('error', reject)
+        .on('response', function (head) {
+          self.logger.debug('head:', head.headers);
 
+          const dest = where ||
+            self.assumeDownloadPathFromCtype(head.headers['content-type']);
 
-  return new Promise(function( resolve, reject ) {
-    // initially get content-type to try to figure out what type it is
-    request.head( url )
-      .on( 'error', reject )
-      .on( 'response', function( head ) {
-        self.logger.debug( 'head:', head.headers );
+          const fullDestPath = self.getDestPath(url, dest);
 
-        // initially get content-type to try to figure out what type it is
-        request.head(url)
-          .on('error', reject)
-          .on('response', function (head) {
-            self.logger.debug('head:', head.headers);
+          try {
+            // goes off and does its thing asyncronously
+            // we do this via try/catch because we want a quick response to say
+            // download started, not wait til it's finished to report back
+            self.handleMediaType(url, head, fullDestPath);
+          } catch (err) {
+            return reject(err);
+          }
 
-            try {
-              // goes off and does its thing asyncronously
-              // we do this via try/catch because we want a quick response to say
-              // download started, not wait til it's finished to report back
-              self.handleMediaType(url, head);
-            } catch (err) {
-              return reject(err);
-            }
-
-            // send back to client that download is in progress, then find status 
-            // via normal download status method
-            return resolve({
-              url: url,
-              contentType: head.headers['content-type'] || 'text/plain'
-            });
-          })
-      });
+          // send back to client that download is in progress, then find status 
+          // via normal download status method
+          return resolve({
+            url: url,
+            contentType: head.headers['content-type'],
+            destName: dest,
+            fullDestPath: fullDestPath
+          });
+        });
     });
   }
 
 
 
   // likely an rss feed of elements, handle continuously with flexget
-  handleXml(url, head) {
+  handleXml(url, head, dest) {
     this.logger.warn('[KaptureURLHandler.handleXml] not yet implemented: %s', url);
     throw new Error('rss feature not yet implemented');
   }
 
 
 
-  handleLastResort(url, head) {
+  handleLastResort(url, head, dest) {
     var self = this;
 
     new Promise(function (resolve, reject) {
       var contentType = head.headers['content-type'];
-      var assumedDest = self.assumeDownloadPathFromCtype(contentType);
-      var fullDestPath = self.getDestPath(url, assumedDest);
-      var sha1 = crypto.createHash('sha1').update(url).digest('hex');
+      var sha1 = crypto.createHash('sha1')
+        .update(`${url}+${dest}`)
+        .digest('hex');
 
       var state = {
         sourceId: self.metadata.pluginId,
         sourceName: self.metadata.pluginName,
         title: self.getFilename(url),
         downloadMechanism: self.metadata.downloadProviders,
-        fullPath: fullDestPath,
+        fullPath: dest,
         pos: 0,
         eta: -1,
         percentDone: 0,
@@ -136,7 +131,7 @@ class KaptureURLHandler extends Plugin {
         hashString: sha1
       };
 
-      self.logger.debug('[KaptureURLHandler.lastResort] storing %s of type %s in %s', url, contentType, assumedDest);
+      self.logger.debug('[KaptureURLHandler.lastResort] storing %s of type %s in %s', url, contentType, dest);
 
       request(url)
         .on('data', function (chunk) {
@@ -166,47 +161,42 @@ class KaptureURLHandler extends Plugin {
 
           reject(err);
         })
-        .pipe(fs.createWriteStream(fullDestPath)); // send to default
+        .pipe(fs.createWriteStream(dest)); // send to default
     });
   }
 
 
   // nothing for now 
-  status() {
-    // TODO: read from store
-    return this.getState() || [];
+  status(id) {
+    return this.getState(id) || [];
+  }
+
+  // DEPRECATED
+  remove(item, fromDisk) {
+    return this.removeDownloadId(id, fromDisk);
   }
 
 
-  remove(item, deleteFromDisk) {
-    var self = this;
 
-    return new Promise(function (resolve, reject) {
-      try {
-        var canonical = self.getState(item.id);
-        if (canonical === undefined) {
-          throw new Error();
-        }
-      } catch (err) {
+  removeDownloadId(id, fromDisk) {
+    const self = this;
+    const infoObj = this.getState(id);
+
+    return new Promise((resolve, reject) => {
+      if (infoObj === undefined) {
         return reject(new Error('cant find item to delete in store'));
       }
 
-      try {
-        if (deleteFromDisk) {
-          fs.unlinkSync(canonical.fullPath);
-        }
-
-        resolve(self.removeState(canonical.id));
-      } catch (err) {
-        return reject(new Error(err.toString()));
+      if (!infoObj.isFinished) {
+        return reject(new Error('download is not finished, wait for completion..'));
       }
-    })
-  }
 
+      if (fromDisk) {
+        fs.unlinkSync(infoObj.fullPath);
+      }
 
-
-  removeDownloadId(id) {
-    return Promise.reject(new Error('KaptureURLHandler: removeDownloadId() not yet implemented'));
+      resolve(self.removeState(infoObj.id));
+    });
   }
 
 
@@ -220,7 +210,7 @@ class KaptureURLHandler extends Plugin {
   }
 
 
-  downloadSlug(slug) {
+  downloadSlug(slug, where) {
     return this.url(slug, where);
   }
 
@@ -232,20 +222,22 @@ class KaptureURLHandler extends Plugin {
   }
 
 
-  getDestPath(url, mediaPathSetting) {
-    return path.join( 
-      this.config.getUserSetting( 'downloadPaths.root' ), 
-      this.config.getUserSetting( 'downloadPaths.' + (mediaPathSetting || 'default') ),   
-      this.getFilename( url )
+  getDestPath(url, dest) {
+    return path.resolve(
+      path.join(
+        this.config.getUserSetting('downloadPaths.root'),
+        this.config.getUserSetting('downloadPaths.' + (dest || 'default')),
+        this.getFilename(url)
+      )
     );
   }
 
   getFilename(url) {
-    const urlObj = Url.parse( url );
+    const urlObj = Url.parse(url);
 
-    if( /https?:/.test(urlObj.protocol) ) {
-      return sanitize( 
-        _.last( urlObj.pathname.split('/') ) // grabs filename of url 
+    if (/https?:/.test(urlObj.protocol)) {
+      return sanitize(
+        _.last(urlObj.pathname.split('/')) // grabs filename of url 
       );
     } else {
       return undefined;
@@ -253,33 +245,31 @@ class KaptureURLHandler extends Plugin {
   }
 
 
-  handleMediaType(url, head) {
-    var cTypeHeader = head.headers['content-type'] || 'text/plain';
+  handleMediaType(url, head, dest) {
+    var cTypeHeader = head.headers['content-type'];
     var cType = _.first(cTypeHeader.split(';'));
-
-    this.logger.debug('content type: %s', cType)
 
     switch (cType) {
       case 'text/xml':
-        return this.handleXml(url, head);
+        return this.handleXml(url, head, dest);
       default:
-        return this.handleLastResort(url, head);
+        return this.handleLastResort(url, head, dest);
     }
   }
 
 
   assumeDownloadPathFromCtype(contentType) {
-    if( /^image\/.*/.test( contentType ) ) {
+    if (/^image\/.*/.test(contentType)) {
       return 'photos';
-    } else if( /^audio\/.*/.test( contentType ) ) {
+    } else if (/^audio\/.*/.test(contentType)) {
       return 'music';
-    } else if( /^video\/.*/.test( contentType ) ) {
+    } else if (/^video\/.*/.test(contentType)) {
       return 'movies';
-    } else if( /^(text|application)\/.*/.test( contentType ) ) { 
+    } else if (/^(text|application)\/.*/.test(contentType)) {
       return 'default';
-    } else { 
+    } else {
       return 'default';
-    } 
+    }
   }
 }
 
