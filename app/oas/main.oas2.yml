@@ -397,20 +397,6 @@
             required: true
             description: "Binary upload data"
           - 
-            in: "formData"
-            name: "type"
-            type: "string"
-            description: "Type of the media being uploaded"
-            enum: 
-              - "movie"
-              - "tvshow"
-              - "music"
-              - "other"
-              - "photo"
-              - "auto"
-            required: true
-            default: "other"
-          - 
             $ref: "#/parameters/whereQueryString"
         operationId: "newupload"
         tags: 
@@ -943,6 +929,7 @@
         - "series"
         - "photos"
         - "movies"
+        - "tvshows"
   tags: 
     - 
       name: "Searching"

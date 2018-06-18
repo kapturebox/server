@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const path = require('path');
 const prettyBytes = require('pretty-bytes');
 
-const dest = require('../../dest');
+const Dest = require('../../dest');
 const Plugin = require('../../plugin_handler/base');
 
 // standard plugin metadata, and some additional flexget properties
@@ -39,7 +39,7 @@ class UploadHandler extends Plugin {
     
     return new Promise((resolve, reject) => {
       const fname = file.name;
-      const basepath = dest.determineDest(where);
+      const basepath = Dest.determineDest(where);
       const fullpath = path.join(basepath, fname);
       const id = crypto.createHash('sha1')
         .update(`${fullpath}`)

@@ -6,7 +6,9 @@ const path = require('path');
 const sanitize = require('sanitize-filename');
 const Promise = require('bluebird');
 const Url = require('url');
+
 const Plugin = require('../../plugin_handler/base');
+const Dest = require('../../dest');
 
 
 class KaptureURLHandler extends Plugin {
@@ -66,6 +68,8 @@ class KaptureURLHandler extends Plugin {
         .on('error', reject)
         .on('response', function (head) {
           self.logger.debug('head:', head.headers);
+
+          
 
           const dest = where ||
             self.assumeDownloadPathFromCtype(head.headers['content-type']);
@@ -223,13 +227,9 @@ class KaptureURLHandler extends Plugin {
 
 
   getDestPath(url, dest) {
-    return path.resolve(
-      path.join(
-        this.config.getUserSetting('downloadPaths.root'),
-        this.config.getUserSetting('downloadPaths.' + (dest || 'default')),
-        this.getFilename(url)
-      )
-    );
+    let cleanDest = Dest.determineDest(dest);
+
+    return path.join(cleanDest, this.getFilename(url));
   }
 
   getFilename(url) {
