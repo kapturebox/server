@@ -301,17 +301,7 @@
           - "Downloading"
         parameters: 
           - 
-            in: "query"
-            name: "where"
-            type: "string"
-            description: "String of download path where the downloaded file should be placed after completion.  If not set, defaults to `default` download path setting"
-            enum: 
-              - "default"
-              - "movies"
-              - "music"
-              - "photos"
-              - "shows"
-            allowEmptyValue: true
+            $ref: "#/parameters/whereQueryString"
       parameters: 
         - 
           name: "methodId"
@@ -420,10 +410,14 @@
               - "auto"
             required: true
             default: "other"
+          - 
+            $ref: "#/parameters/whereQueryString"
         operationId: "newupload"
         tags: 
           - "Uploading"
         description: "Upload a new file to kapture instance.  This should be uploaded via the multipart upload method, and will accept any files that are sent to it, regardless if the media player enabled can handle it."
+        consumes: 
+          - "multipart/form-data"
     /trending/{sourceId}/info/{id}: 
       get: 
         responses: 
@@ -934,6 +928,21 @@
       type: "string"
       description: "This field allows for users to filter on specific fields that come back in objects from search results.  The format is simply: `key1:value;key2:value2`."
       pattern: "((?:\\w+:\\w+));?"
+    whereQueryString: 
+      name: "where"
+      in: "query"
+      type: "string"
+      description: "Where the file should be placed.  This should be one of:\n\n- `series`\n- `tvshow`\n- `movie[s]`\n- `music`\n- `photo[s]`\n- `other`\n- `auto`  - will auto detect possible locations based on file type"
+      enum: 
+        - "movie"
+        - "tvshow"
+        - "music"
+        - "other"
+        - "photo"
+        - "auto"
+        - "series"
+        - "photos"
+        - "movies"
   tags: 
     - 
       name: "Searching"

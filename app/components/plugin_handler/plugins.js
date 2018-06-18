@@ -21,6 +21,9 @@ const PLUGIN_REQUIREMENTS = {
   },
   series: {       // ie showrss
     functions: ['enableId', 'disableId', 'getEnabledSeries']
+  },
+  uploader: {
+    functions: ['uploadFile']
   }
 }
 

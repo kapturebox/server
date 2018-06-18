@@ -12,9 +12,9 @@ const Plugin = require('../../plugin_handler/base');
 class KaptureURLHandler extends Plugin {
   constructor() {
     const metadata = {
-      pluginId: 'com_kapture_url', // Unique ID of plugin
+      pluginId: 'com_kapturebox_url',    // Unique ID of plugin
       pluginName: 'Kapture URL Handler', // Display name of plugin
-      pluginTypes: ['downloader'], // 'source', 'downloader', 'player'
+      pluginTypes: ['downloader'],       // 'source', 'downloader', 'player'
       sourceTypes: 'adhoc', // 'adhoc', 'continuous'
       link: 'http://kapturebox.com', // Link to provider site
       downloadProviders: 'url', // if plugin can also download, what

@@ -4,13 +4,11 @@
 
 
 
-const express = require('express');
 const compression = require('compression');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
-const errorHandler = require('errorhandler');
-const path = require('path');
 const winstonExpress = require('express-winston');
+const uploader = require('express-fileupload');
 
 const config = require('./config');
 
@@ -20,6 +18,7 @@ module.exports = function( app ) {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(methodOverride());
+  app.use(uploader());
   app.set('x-powered-by', false);
   app.set('json spaces', 2);
   app.use(
