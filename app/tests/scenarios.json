@@ -425,6 +425,202 @@
           }
         }
       ]
+    },
+    "url": {
+      "name": "Verify URL functionality",
+      "steps": [
+        {
+          "type": "http",
+          "input": {
+            "method": "post",
+            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.videoUrl}"
+          },
+          "name": "Try video file",
+          "before": {
+            "script": "const videoUrl = \"http://kapturebox.com/video/explainer.webm\"; // video/webm\nconst imageUrl = \"http://kapturebox.com/img/logo2.png\"; // image/png\nconst musicUrl = \"https://freemusicarchive.org/music/download/69f6cb3d0a235db46bb69186ef634b9da5d43bfd\"; // audio/mpeg\n\nconst videoUrlEnc = Buffer.from(videoUrl).toString('base64');\nconst imageUrlEnc = Buffer.from(imageUrl).toString('base64');\nconst musicUrlEnc = Buffer.from(musicUrl).toString('base64');\n\n$.ctx.set('videoUrl', videoUrlEnc);\n$.ctx.set('imageUrl', imageUrlEnc);\n$.ctx.set('musicUrl', musicUrlEnc);"
+          },
+          "after": {
+            "assertions": [
+              {
+                "target": "output.status",
+                "op": "eq",
+                "expected": 200
+              },
+              {
+                "target": "output.body.destName",
+                "op": "eq",
+                "expected": "movies"
+              },
+              {
+                "target": "output.body.contentType",
+                "op": "eq",
+                "expected": "video/webm"
+              }
+            ]
+          }
+        },
+        {
+          "type": "http",
+          "input": {
+            "method": "post",
+            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.videoUrl}",
+            "query": {
+              "where": "shows"
+            }
+          },
+          "name": "Try video file with dest override",
+          "before": {},
+          "after": {
+            "assertions": [
+              {
+                "target": "output.status",
+                "op": "eq",
+                "expected": 200
+              },
+              {
+                "target": "output.body.destName",
+                "op": "eq",
+                "expected": "shows"
+              },
+              {
+                "target": "output.body.contentType",
+                "op": "eq",
+                "expected": "video/webm"
+              },
+              {
+                "target": "output.body.fullDestPath",
+                "op": "contains",
+                "expected": "/tvshows/"
+              }
+            ]
+          }
+        },
+        {
+          "type": "http",
+          "input": {
+            "method": "post",
+            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.imageUrl}"
+          },
+          "name": "Try image file",
+          "before": {},
+          "after": {
+            "assertions": [
+              {
+                "target": "output.status",
+                "op": "eq",
+                "expected": 200
+              },
+              {
+                "target": "output.body.destName",
+                "op": "eq",
+                "expected": "photos"
+              },
+              {
+                "target": "output.body.fullDestPath",
+                "op": "contains",
+                "expected": "/photos/"
+              },
+              {
+                "target": "output.body.contentType",
+                "op": "eq",
+                "expected": "image/png"
+              }
+            ]
+          }
+        },
+        {
+          "type": "http",
+          "input": {
+            "method": "post",
+            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.musicUrl}"
+          },
+          "name": "Try music file",
+          "before": {},
+          "after": {
+            "assertions": [
+              {
+                "target": "output.status",
+                "op": "eq",
+                "expected": 200
+              },
+              {
+                "target": "output.body.destName",
+                "op": "eq",
+                "expected": "music"
+              },
+              {
+                "target": "output.body.contentType",
+                "op": "eq",
+                "expected": "audio/mpeg"
+              },
+              {
+                "target": "output.body.fullDestPath",
+                "op": "contains",
+                "expected": "/music/"
+              }
+            ]
+          }
+        },
+        {
+          "type": "http",
+          "name": "Make sure downloads exist",
+          "input": {
+            "method": "get",
+            "url": "{$.env.host}/api/v1/downloads"
+          },
+          "after": {
+            "assertions": [
+              {
+                "target": "output.status",
+                "op": "eq",
+                "expected": 200
+              },
+              {
+                "target": "output.body",
+                "op": "length",
+                "expected": 4
+              }
+            ],
+            "script": "const bdy = output.body.get();\nconst ids = bdy.map(function(e) {return e.id});\n\n$.ctx.set('todelete', ids);"
+          },
+          "before": {
+            "script": "SL.sleep(5000);"
+          }
+        },
+        {
+          "type": "http",
+          "name": "Remove download 1",
+          "input": {
+            "method": "delete",
+            "url": "{$.env.host}/api/v1/downloads/{$.ctx.todelete[0]}"
+          }
+        },
+        {
+          "type": "http",
+          "name": "Remove download 2",
+          "input": {
+            "method": "delete",
+            "url": "{$.env.host}/api/v1/downloads/{$.ctx.todelete[1]}"
+          }
+        },
+        {
+          "type": "http",
+          "name": "Remove download 3",
+          "input": {
+            "method": "delete",
+            "url": "{$.env.host}/api/v1/downloads/{$.ctx.todelete[2]}"
+          }
+        },
+        {
+          "type": "http",
+          "name": "Remove download 4",
+          "input": {
+            "method": "delete",
+            "url": "{$.env.host}/api/v1/downloads/{$.ctx.todelete[3]}"
+          }
+        }
+      ],
+      "description": "Checks that the url plugin works"
     }
   },
   "utilities": {},

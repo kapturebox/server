@@ -69,8 +69,6 @@ class KaptureURLHandler extends Plugin {
         .on('response', function (head) {
           self.logger.debug('head:', head.headers);
 
-          
-
           const dest = where ||
             self.assumeDownloadPathFromCtype(head.headers['content-type']);
 
