@@ -11,11 +11,13 @@ const methodOverride = require('method-override');
 const errorHandler = require('errorhandler');
 const path = require('path');
 const winstonExpress = require('express-winston');
+const cors = require('cors')
 
 const config = require('./config');
 
 
 module.exports = function( app ) {
+  app.use(cors())
   app.use(compression());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
