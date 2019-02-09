@@ -259,15 +259,9 @@ class ThepiratebaySource extends Plugin {
       leechers: parseInt(object.peers),
       score: this.calculateScore(object),
       slug: Buffer.from(object.magnet).toString('base64'),
-
       sourceData: object,
 
-
-
-      // tpbUploadDate: object.uploadDate,
-      // tpbId: object.id,
-      // tpbCategory: object.category.name + ':' + object.subcategory.name,
-      // uploaded: date,
+      // dont think we can figure these out from results
       // category: object.subcategory.name,
       // mediaType: self.determineMediaType(d),
       // id: object.id
@@ -275,10 +269,13 @@ class ThepiratebaySource extends Plugin {
 
     switch(object.provider) {
       case 'ExtraTorrent':
+        transformed.uploaded = this.convertSize(object.time);
         break;
       case 'Torrentz2':
+        transformed.uploaded = this.convertSize(object.time);
         break;
       case 'Rarbg':
+        transformed.uploaded = Date.parse(object.time);
         break;
     }
 
@@ -313,14 +310,14 @@ class ThepiratebaySource extends Plugin {
   }
 
   calculateScore(result) {
-    const MAX_ACTIVE_SEEDERS = 10000;
+    const MAX_ACTIVE_SEEDERS = 1000;
 
     return result.seeds / MAX_ACTIVE_SEEDERS;
   }
 
 
   convertSize(sizeString) {
-    var split = this.removeWeirdCharacters(sizeString).split(' ');
+    const split = this.removeWeirdCharacters(sizeString).split(' ');
     return parseFloat(split[0]) * SIZE_MULTIPLIERS[split[1]];
   }
 }

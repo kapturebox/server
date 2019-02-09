@@ -73,7 +73,7 @@ class TransmissionDownloader extends Plugin {
 
   // DEPRECATED
   download(item) {
-    return this.downloadMagnet(item.downloadUrl, self.getDownloadPath(item.mediaType));
+    return this.downloadMagnet(item.downloadUrl, this.getDownloadPath(item.mediaType));
   }
 
 
