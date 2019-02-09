@@ -7,7 +7,7 @@ volumes:
 services:
   server:
     build: .
-    image: kapturebox/server
+    image: kapturebox/server:latest
     volumes:
       - config:/config
       - media:/media
@@ -38,7 +38,7 @@ services:
       - media:/media
 
   flexget:
-    image: gaieges/flexget
+    image: gaieges/flexget:latest
     environment:
       FLEXGET_PASSWORD: mySuperPassword
     ports:
@@ -47,7 +47,7 @@ services:
   # not necessary at the moment..
   # plex:
   #   image: plexinc/pms-docker
-  #   ports: 
+  #   ports:
   #     - '32400:32400'
   #   volumes:
   #     - media:/media
