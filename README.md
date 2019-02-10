@@ -9,8 +9,8 @@
 Easiest way to get up and running here is to start up a local server:
 
 ```
-yarn
-npm start 
+npm install
+npm start
 # or
 npm run watch # to reload on changes to local files
 ```
