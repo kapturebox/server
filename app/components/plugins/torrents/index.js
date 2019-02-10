@@ -100,14 +100,11 @@ class TorrentSearchSource extends Plugin {
   // needs to go out and get the magnet link again?  or should we cache all results?
   // maybe just dont provide an ID and rely on `method` approach
   downloadId(id) {
-    return tpb
-      .getTorrent(id)
-      .then((result) => {
-        const magnet = result.magnet;
-        return plugins
-          .getPlugin('com_transmissionbt')
-          .downloadSlug(magnet);
-      });
+    // id = magnet
+    const magnet = Buffer.from(id, 'base64').toString('ascii')
+    return plugins
+      .getPlugin('com_transmissionbt')
+      .downloadSlug(magnet);
   };
 
   getDownloadStatus() {
@@ -134,12 +131,14 @@ class TorrentSearchSource extends Plugin {
       leechers: parseInt(object.peers),
       score: this.calculateScore(object),
       slug: Buffer.from(object.magnet).toString('base64'),
+      id: Buffer.from(object.magnet).toString('base64'),
       sourceData: object,
+
+      // required to determine where to save, but need a better way to determine this
+      mediaType: 'shows',
 
       // dont think we can figure these out from results
       // category: object.subcategory.name,
-      // mediaType: self.determineMediaType(d),
-      // id: object.id
     }
 
     switch(object.provider) {
