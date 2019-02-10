@@ -34,16 +34,16 @@ class YoutubeSource extends Plugin {
       // downloadMechanism can it download?
       description: 'You know what youtube is'   // Description of plugin provider
     };
-  
+
     const defaultSettings = {
       enabled: true
       // TODO: api key needs to be stored here
     };
-  
+
     super(metadata, defaultSettings);
-  
+
     this.youtubesdk = new youtubesdk();
-    this.youtubesdk.use(youtubeSearchToken);  
+    this.youtubesdk.use(youtubeSearchToken);
   }
 
 
@@ -89,7 +89,7 @@ class YoutubeSource extends Plugin {
         }
 
         // gets rid of annoying warnings from youtube-dl lib
-        delete kapResult.sourceData.resolution;
+        // delete kapResult['sourceData']['resolution'];
 
         resolve(kapResult);
       });
@@ -148,10 +148,10 @@ class YoutubeSource extends Plugin {
       slug: Buffer.from(result.id).toString('base64'),
       fullPath: path.resolve(
         path.join(
-          this.config.getUserSetting('downloadPaths.root'), 
-          this.config.getUserSetting('downloadPaths.default'), 
+          this.config.getUserSetting('downloadPaths.root'),
+          this.config.getUserSetting('downloadPaths.default'),
           sanitize(result._filename)
-      )), 
+      )),
       sourceData: result
     };
 
@@ -247,7 +247,7 @@ class YoutubeSource extends Plugin {
         downloadUrl: util.format(YOUTUBE_VIDEO_URL, e.id),
         hashString: sha1.digest('hex'),
         size: self.calculateSize(e),
-        score: self.calculateScore(e), 
+        score: self.calculateScore(e),
         sourceData: e
       }
     });

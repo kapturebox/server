@@ -40,6 +40,8 @@ class TransmissionDownloader extends Plugin {
       'video': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies')),
       'videos': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies')),
       'tvshow': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
+      'shows': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
+      'show': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
       'audio': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
       'music': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
       'photos': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
