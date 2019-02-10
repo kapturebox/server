@@ -4,7 +4,7 @@ RUN apk update \
   && apk add curl \
   && apk add python   # needed for youtube-dl
 
-COPY package.json package-lock.json /app
+COPY package.json package-lock.json /app/
 
 RUN cd /app && npm install -g gulp && npm install
 
