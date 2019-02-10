@@ -1,14 +1,17 @@
 FROM node:alpine
 
+WORKDIR /app
+
 RUN apk update \
   && apk add curl \
-  && apk add python   # needed for youtube-dl
+  # needed for youtube-dl
+  && apk add python \
+  && npm install -g gulp
 
 COPY package.json package-lock.json /app/
+RUN npm install
 
-RUN cd /app && npm install -g gulp && npm install
-
-COPY app /app
+COPY . /app/
 
 CMD npm start
 
