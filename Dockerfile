@@ -10,7 +10,7 @@ RUN cd /app && npm install -g gulp && npm install
 
 COPY app /app
 
-CMD node /app/app.js
+CMD npm start
 
 HEALTHCHECK \
    --interval=30s \
