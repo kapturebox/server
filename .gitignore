@@ -5,3 +5,4 @@ downloads/
 pluginStateStore
 app/config/config/local.yml
 stoplightcommands.md
+yarn.lock
