@@ -14,8 +14,11 @@ services:
       - /app/node_modules
       - .:/app
     environment:
+      NODE_ENV: docker
+      TRANSMISSION_HOST: transmission
       TRANSMISSION_USER: admin
       TRANSMISSION_PASS: password
+      FLEXGET_HOST: flexget
       FLEXGET_USERNAME: flexget
       FLEXGET_PASSWORD: mySuperPassword
       KAPTURE_DOWNLOAD_PATH: /media

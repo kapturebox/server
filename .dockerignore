@@ -3,3 +3,4 @@ pluginStateStore
 downloads
 Dockerfile
 docker-compose.yml
+app/config/config/local.yml

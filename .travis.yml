@@ -27,3 +27,6 @@ script:
 
   # run protractor tests against spun up instance
   - docker run -v $(pwd)/app/tests:/tests --network server_default stoplight/prism conduct /tests/scenarios.json -e host=http://server:9000
+
+after_failure:
+  - docker-compose -p server logs

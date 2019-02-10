@@ -4,3 +4,16 @@ ip: IP
 pluginStateStore: KAPTURE_STATE_STORE
 downloadPaths:
   root: KAPTURE_DOWNLOAD_PATH
+
+plugins:
+  com_transmission_bt:
+    transmissionHost: TRANSMISSION_HOST
+    transmissionPort: TRANSMISSION_PORT
+    transmissionPass: TRANSMISSION_PASS
+    transmissionUser: TRANSMISSION_USER
+  com_flexget:
+    apiToken: FLEXGET_API_TOKEN
+    flexgetHost: FLEXGET_HOST
+    flexgetPort: FLEXGET_PORT
+    flexgetPass: FLEXGET_PASSWORD
+    flexgetUser: FLEXGET_USERNAME
