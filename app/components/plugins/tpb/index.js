@@ -14,14 +14,21 @@ require('datejs');
 var SIZE_MULTIPLIERS = {};
 
 SIZE_MULTIPLIERS.B = 1;
-SIZE_MULTIPLIERS.KiB = (SIZE_MULTIPLIERS.B * 1024);
-SIZE_MULTIPLIERS.MiB = (SIZE_MULTIPLIERS.KiB * 1024);
-SIZE_MULTIPLIERS.GiB = (SIZE_MULTIPLIERS.MiB * 1024);
-SIZE_MULTIPLIERS.TiB = (SIZE_MULTIPLIERS.GiB * 1024);
-SIZE_MULTIPLIERS.PiB = (SIZE_MULTIPLIERS.TiB * 1024);
-SIZE_MULTIPLIERS.EiB = (SIZE_MULTIPLIERS.PiB * 1024);
-SIZE_MULTIPLIERS.ZiB = (SIZE_MULTIPLIERS.EiB * 1024);
+SIZE_MULTIPLIERS.KB = (SIZE_MULTIPLIERS.B * 1024);
+SIZE_MULTIPLIERS.MB = (SIZE_MULTIPLIERS.KB * 1024);
+SIZE_MULTIPLIERS.GB = (SIZE_MULTIPLIERS.MB * 1024);
+SIZE_MULTIPLIERS.TB = (SIZE_MULTIPLIERS.GB * 1024);
+SIZE_MULTIPLIERS.PB = (SIZE_MULTIPLIERS.TB * 1024);
+SIZE_MULTIPLIERS.EB = (SIZE_MULTIPLIERS.PB * 1024);
+SIZE_MULTIPLIERS.ZB = (SIZE_MULTIPLIERS.EB * 1024);
 
+SIZE_MULTIPLIERS.KiB = (SIZE_MULTIPLIERS.B * 1024);
+SIZE_MULTIPLIERS.MiB = (SIZE_MULTIPLIERS.KB * 1024);
+SIZE_MULTIPLIERS.GiB = (SIZE_MULTIPLIERS.MB * 1024);
+SIZE_MULTIPLIERS.TiB = (SIZE_MULTIPLIERS.GB * 1024);
+SIZE_MULTIPLIERS.PiB = (SIZE_MULTIPLIERS.TB * 1024);
+SIZE_MULTIPLIERS.EiB = (SIZE_MULTIPLIERS.PB * 1024);
+SIZE_MULTIPLIERS.ZiB = (SIZE_MULTIPLIERS.EB * 1024);
 
 
 
@@ -169,7 +176,7 @@ class ThepiratebaySource extends Plugin {
       this.logger.info('[torrentsearchapi] raw results: ', results.length);
 
       const transformed = this.transformResults(results);
-      this.logger.debug('[torrentsearchapi] transformed:', transformed)
+      // this.logger.debug('[torrentsearchapi] transformed:', transformed)
 
       const ordered = _.sortBy(transformed, 'score')
 
@@ -187,8 +194,6 @@ class ThepiratebaySource extends Plugin {
   // needs to go out and get the magnet link again?  or should we cache all results?
   // maybe just dont provide an ID and rely on `method` approach
   downloadId(id) {
-    const self = this;
-
     return tpb
       .getTorrent(id)
       .then((result) => {
@@ -203,45 +208,8 @@ class ThepiratebaySource extends Plugin {
     return [];
   }
 
-
-  removeWeirdCharacters(str) {
-    return str.replace('\xc2', '')
-      .replace('\xa0', '\x20');
-  }
-
-
-
   transformResults(jsonResults) {
     return jsonResults.map(this.transformResult.bind(this));
-
-    // var self = this;
-    // return jsonResults.map(function (d) {
-    //   // uploadDate field and size field needs some transforming
-    //   // uploadDate has some weird special tpb format
-    //   // var date;
-
-    //   try {
-    //     var dateString = self.removeWeirdCharacters(d.uploadDate)
-    //       .replace(/([0-9]{2}-[0-9]{2})\s([0-9]{4})?/, function (match, g1, g2) {
-    //         return g1 + '-' + (g2 ? g2 + ' 00:00' : new Date().toString('yyyy')) + ' ';
-    //       })
-    //       .toLowerCase() +
-    //       '-00:00';
-
-
-    //     date = Date.parse(dateString);
-
-    //     if (date == null) {
-    //       self.logger.warn('[tpb] failed to parse entry date [null]: "%s"', dateString);
-    //     }
-    //   } catch (err) {
-    //     self.logger.warn('[tpb] failed to parse entry date: "%s"', d.uploadDate, err);
-    //   }
-
-    //   // get rid of weird CDATA comment strings
-    //   var title = d.name.replace(/\/\*.*\*\//, '');
-
-    // });
   };
 
   transformResult(object) {
@@ -250,7 +218,8 @@ class ThepiratebaySource extends Plugin {
       sourceName: this.metadata.pluginName,
       downloadMechanism: 'torrent',
       title: object.title,
-      size: object.size,
+      size: this.convertSize(object.size),
+      uploaded: Date.parse(object.time),
       downloadUrl: object.magnet,
       magnetLink: object.magnet,
       hashString: object.magnet.match(/urn:btih:([a-z0-9]{40})/)[1],
@@ -269,56 +238,25 @@ class ThepiratebaySource extends Plugin {
 
     switch(object.provider) {
       case 'ExtraTorrent':
-        transformed.uploaded = this.convertSize(object.time);
         break;
       case 'Torrentz2':
-        transformed.uploaded = this.convertSize(object.time);
+        transformed.uploaded = Date.parse(object.time + " ago");
         break;
       case 'Rarbg':
-        transformed.uploaded = Date.parse(object.time);
         break;
     }
 
     return transformed;
   }
 
-
-
-  determineMediaType(elem) {
-    switch (elem.category.name + ':' + elem.subcategory.name) {
-      case 'Video:HD - TV shows':
-      case 'Video:TV shows':
-        return 'shows';
-      case 'Video:Movies':
-      case 'Video:HD - Movies':
-      case 'Video:undefined':
-      case 'Video:':
-      case 'Video:Anime':
-      case 'Video:XXX':
-      case 'Porn:Movie clips':
-      case 'Porn:':
-      case 'Porn:Movies':
-      case 'Porn:HD - Movies':
-        return 'movies';
-      case 'Audio':
-      case 'Audio:Music':
-      case 'Audio:Other':
-        return 'music';
-      default:
-        return 'default';
-    }
-  }
-
   calculateScore(result) {
     const MAX_ACTIVE_SEEDERS = 1000;
-
     return result.seeds / MAX_ACTIVE_SEEDERS;
   }
 
-
   convertSize(sizeString) {
-    const split = this.removeWeirdCharacters(sizeString).split(' ');
-    return parseFloat(split[0]) * SIZE_MULTIPLIERS[split[1]];
+    const splitted = sizeString.split(' ');
+    return parseFloat(splitted[0]) * SIZE_MULTIPLIERS[splitted[1]];
   }
 }
 
