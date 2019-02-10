@@ -1,6 +1,5 @@
 
 
-const fs = require('fs');
 const persist = require('node-persist');
 const util = require('util');
 const path = require('path');
@@ -79,7 +78,7 @@ class Plugin {
   }
 
   /**
-   * Get current value from statestore of key 
+   * Get current value from statestore of key
    * @param {String} key  key to get
    */
   getState(key) {
