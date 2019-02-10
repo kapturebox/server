@@ -1,0 +1,21 @@
+FROM balenalib/raspberrypi3-alpine-node
+
+WORKDIR /app
+
+RUN apk update \
+  && apk add curl python \
+  # needed for youtube-dl
+  && npm install -g gulp
+
+COPY package.json package-lock.json /app/
+RUN npm install
+
+COPY . /app/
+
+CMD npm start
+
+HEALTHCHECK \
+   --interval=30s \
+   --timeout=5s \
+   --retries=3 \
+   CMD curl -Ifs localhost:9000/health
