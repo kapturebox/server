@@ -71,7 +71,7 @@
           "input": {
             "method": "patch",
             "url": "{$.env.host}/api/v1/settings",
-            "body": "{\n\t\"plugins\": {\n  \t\"com_flexget\": {\n      \"enabled\": true\n    },\n  \t\"com_kapture_url\": {\n      \"enabled\": true\n    },\n  \t\"com_piratebay\": {\n      \"enabled\": true\n    },\n  \t\"com_transmissionbt\": {\n      \"enabled\": true\n    },\n  \t\"com_youtube\": {\n      \"enabled\": true\n    },\n  \t\"info_showrss\": {\n      \"enabled\": true\n    },\n  \t\"tv_trakt\": {\n      \"enabled\": true\n    }\n  }\n}",
+            "body": "{\n  \"plugins\": {\n    \"com_flexget\": {\n      \"enabled\": true\n    },\n    \"com_kapture_url\": {\n      \"enabled\": true\n    },\n    \"com_kapture_torrent\": {\n      \"enabled\": true\n    },\n    \"com_transmissionbt\": {\n      \"enabled\": true\n    },\n    \"com_youtube\": {\n      \"enabled\": true\n    },\n    \"info_showrss\": {\n      \"enabled\": true\n    },\n    \"tv_trakt\": {\n      \"enabled\": true\n    }\n  }\n}",
             "headers": {
               "Content-Type": "application/json"
             }
@@ -85,7 +85,7 @@
                 "expected": 202
               }
             ],
-            "script": "const enabledKeys = [\n  'plugins.com_flexget.enabled',\n  'plugins.com_kapture_url.enabled',\n  'plugins.com_piratebay.enabled',\n  'plugins.com_transmissionbt.enabled',\n  'plugins.com_youtube.enabled',\n  'plugins.info_showrss.enabled',\n  'plugins.tv_trakt.enabled'\n];\n\nenabledKeys.forEach(function (k) {\n  tests[k + ' is enabled'] = output.body.get(k) === true;\n});\n"
+            "script": "const enabledKeys = [\n  'plugins.com_flexget.enabled',\n  'plugins.com_kapture_url.enabled',\n  'plugins.com_kapture_torrent.enabled',\n  'plugins.com_transmissionbt.enabled',\n  'plugins.com_youtube.enabled',\n  'plugins.info_showrss.enabled',\n  'plugins.tv_trakt.enabled'\n];\n\nenabledKeys.forEach(function (k) {\n  tests[k + ' is enabled'] = output.body.get(k) === true;\n});\n"
           }
         }
       ]
@@ -302,7 +302,7 @@
             }
           },
           "after": {
-            "script": "const bdy = output.body.get();\n\nconst yt = _.filter(bdy, {sourceId: 'com_youtube'});\nconst tpb = _.filter(bdy, {sourceId: 'com_piratebay'});\n\ntests['youtube results > 0'] = yt.length > 0;\ntests['tpb results > 0'] = tpb.length > 0;\n\n$.ctx.set('yt', yt[0]);\n$.ctx.set('tpb', tpb[0]);\n"
+            "script": "const bdy = output.body.get();\n\nconst yt = _.filter(bdy, {sourceId: 'com_youtube'});\nconst tor = _.filter(bdy, {sourceId: 'com_kapture_torrent'});\n\ntests['youtube results > 0'] = yt.length > 0;\ntests['tor results > 0'] = tor.length > 0;\n\n$.ctx.set('yt', yt[0]);\n$.ctx.set('tor', tor[0]);\n"
           }
         },
         {
@@ -315,12 +315,12 @@
         },
         {
           "type": "http",
-          "name": "Start download from tpb via method",
+          "name": "Start download from torrent via method",
           "input": {
             "method": "post",
-            "url": "{$.env.host}/api/v1/downloads/method:{$.ctx.tpb.downloadMechanism}/{$.ctx.tpb.slug}",
+            "url": "{$.env.host}/api/v1/downloads/method:{$.ctx.tor.downloadMechanism}/{$.ctx.tor.slug}",
             "query": {
-              "where": "{$.ctx.tpb.mediaType}"
+              "where": "{$.ctx.tor.mediaType}"
             }
           }
         },
@@ -331,6 +331,9 @@
             "method": "get",
             "url": "{$.env.host}/api/v1/downloads"
           },
+          "before": {
+            "script": "SL.sleep(5000)"
+          },
           "after": {
             "assertions": [
               {
@@ -339,9 +342,6 @@
               }
             ],
             "script": "tests['verify list has 2 download entries'] = output.body.get().length === 2;\n\n$.ctx.set('todelete', output.body.get().map(function(e) {\n  return e.id;\n}));"
-          },
-          "before": {
-            "script": "SL.sleep(5000)"
           }
         },
         {
@@ -376,10 +376,10 @@
         },
         {
           "type": "http",
-          "name": "Start download from tpb via source",
+          "name": "Start download from torrent via source",
           "input": {
             "method": "post",
-            "url": "{$.env.host}/api/v1/downloads/source:{$.ctx.tpb.sourceId}/{$.ctx.tpb.id}"
+            "url": "{$.env.host}/api/v1/downloads/source:{$.ctx.tor.sourceId}/{$.ctx.tor.id}"
           }
         },
         {
@@ -389,6 +389,9 @@
             "method": "get",
             "url": "{$.env.host}/api/v1/downloads"
           },
+          "before": {
+            "script": "SL.sleep(5000)"
+          },
           "after": {
             "assertions": [
               {
@@ -397,9 +400,6 @@
               }
             ],
             "script": "tests['verify list has 2 download entries'] = output.body.get().length === 2;\n\n$.ctx.set('todelete', output.body.get().map(function(e) {\n  return e.id;\n}));"
-          },
-          "before": {
-            "script": "SL.sleep(5000)"
           }
         },
         {
@@ -427,20 +427,20 @@
       ]
     }
   },
-  "utilities": {},
   "after": {
     "url": {
       "name": "Verify URL functionality",
+      "description": "Checks that the url plugin works",
       "steps": [
         {
           "type": "http",
+          "name": "Try video file",
           "input": {
             "method": "post",
             "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.videoUrl}"
           },
-          "name": "Try video file",
           "before": {
-            "script": "const videoUrl = \"http://kapturebox.com/video/explainer.webm\"; // video/webm\nconst imageUrl = \"http://kapturebox.com/img/logo2.png\"; // image/png\nconst musicUrl = \"https://freemusicarchive.org/music/download/62ae36da26642672bdc9f2e822a09cf3050cd4ac\"; // audio/mpeg\n\nconst videoUrlEnc = Buffer.from(videoUrl).toString('base64');\nconst imageUrlEnc = Buffer.from(imageUrl).toString('base64');\nconst musicUrlEnc = Buffer.from(musicUrl).toString('base64');\n\n$.ctx.set('videoUrl', videoUrlEnc);\n$.ctx.set('imageUrl', imageUrlEnc);\n$.ctx.set('musicUrl', musicUrlEnc);"
+            "script": "const videoUrl = \"http://kapturebox.com/video/explainer.webm\"; // video/webm\nconst imageUrl = \"http://kapturebox.com/img/logo2.png\"; // image/png\nconst musicUrl = \"https://freemusicarchive.org/music/download/4557c8c44219b0f0e313c806a725224d333c31e8\"; // audio/mpeg\n\nconst videoUrlEnc = Buffer.from(videoUrl).toString('base64');\nconst imageUrlEnc = Buffer.from(imageUrl).toString('base64');\nconst musicUrlEnc = Buffer.from(musicUrl).toString('base64');\n\n$.ctx.set('videoUrl', videoUrlEnc);\n$.ctx.set('imageUrl', imageUrlEnc);\n$.ctx.set('musicUrl', musicUrlEnc);"
           },
           "after": {
             "assertions": [
@@ -464,14 +464,14 @@
         },
         {
           "type": "http",
+          "name": "Try video file with dest override",
           "input": {
             "method": "post",
             "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.videoUrl}",
             "query": {
-              "where": "tvshows"
+              "where": "shows"
             }
           },
-          "name": "Try video file with dest override",
           "before": {},
           "after": {
             "assertions": [
@@ -483,7 +483,7 @@
               {
                 "target": "output.body.destName",
                 "op": "eq",
-                "expected": "tvshows"
+                "expected": "shows"
               },
               {
                 "target": "output.body.contentType",
@@ -500,11 +500,11 @@
         },
         {
           "type": "http",
+          "name": "Try image file",
           "input": {
             "method": "post",
             "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.imageUrl}"
           },
-          "name": "Try image file",
           "before": {},
           "after": {
             "assertions": [
@@ -533,11 +533,14 @@
         },
         {
           "type": "http",
+          "name": "Try music file",
           "input": {
             "method": "post",
-            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.musicUrl}"
+            "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.musicUrl}",
+            "query": {
+              "where": "music"
+            }
           },
-          "name": "Try music file",
           "before": {},
           "after": {
             "assertions": [
@@ -571,6 +574,9 @@
             "method": "get",
             "url": "{$.env.host}/api/v1/downloads"
           },
+          "before": {
+            "script": "SL.sleep(10000);"
+          },
           "after": {
             "assertions": [
               {
@@ -585,9 +591,6 @@
               }
             ],
             "script": "const bdy = output.body.get();\nconst ids = bdy.map(function(e) {return e.id});\n\n$.ctx.set('todelete', ids);"
-          },
-          "before": {
-            "script": "SL.sleep(10000);"
           }
         },
         {
@@ -622,8 +625,8 @@
             "url": "{$.env.host}/api/v1/downloads/{$.ctx.todelete[3]}"
           }
         }
-      ],
-      "description": "Checks that the url plugin works"
+      ]
     }
-  }
+  },
+  "utilities": {}
 }
