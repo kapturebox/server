@@ -12,7 +12,7 @@ services:
       - config:/config
       - media:/media
       - /app/node_modules
-      - ./app:/app
+      - .:/app
     environment:
       TRANSMISSION_USER: admin
       TRANSMISSION_PASS: password
