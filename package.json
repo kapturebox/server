@@ -4,7 +4,7 @@
   "main": "app/app.js",
   "scripts": {
     "start": "node app/app.js",
-    "watch": "gulp serve"
+    "watch": "gulp"
   },
   "dependencies": {
     "bluebird": "^3.5.3",
@@ -36,6 +36,7 @@
     "youtube-search": "^1.1.4"
   },
   "devDependencies": {
+    "del": "^3.0.0",
     "gulp": "^4.0.0",
     "gulp-live-server": "0.0.31",
     "gulp-run": "^1.7.1",

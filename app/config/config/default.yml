@@ -13,4 +13,9 @@ downloadPaths:
     music: music
     photos: photos
     default: downloads
-plugins: {}
+plugins:
+  com_transmission_bt:
+    enabled: true
+  com_flexget:
+    enabled: true
+

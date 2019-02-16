@@ -42,37 +42,37 @@ class FlexgetDownloader extends Plugin {
         web_ui: this.config.get('env')  === 'production' ? false : true
       },
     };
-  
+
     this.schedulerConfig = {
       schedules: [{
-        tasks: '*',    
+        tasks: '*',
         interval: {
           minutes: this.get('flexgetCheckFrequency')
         },
       }]
     };
-  
+
     // settings in plugin config file
     this.getApiToken      = this.get.bind( this, 'apiToken' );
     this.getUsername      = this.get.bind( this, 'flexgetUser' );
     this.getPassword      = this.get.bind( this, 'flexgetPass' );
     this.getFlexgetHost   = this.get.bind( this, 'flexgetHost' );
     this.getFlexgetPort   = this.get.bind( this, 'flexgetPort' );
-    
+
     this.getFlexgetApiUrl = function( path ) {
-      return util.format( 'http://%s:%s/api/%s', 
-        self.getFlexgetHost() || 'localhost', 
-        self.getFlexgetPort() || '5050', 
+      return util.format( 'http://%s:%s/api/%s',
+        self.getFlexgetHost() || 'localhost',
+        self.getFlexgetPort() || '5050',
         path || '' );
     }
 
     var self = this;
-  
+
     this.getAuthorization = function() {
       if( self.getApiToken() ) {
         return {
-          headers: { 
-            'Authorization': util.format( 'Token %s', self.getApiToken() ) 
+          headers: {
+            'Authorization': util.format( 'Token %s', self.getApiToken() )
           }
         }
       } else {
@@ -91,7 +91,7 @@ class FlexgetDownloader extends Plugin {
 
   // DEPRECATED
   // takes an item provided by the search sources, and sends it to the search source to add
-  // state to that plugin, then it kicks off a 'update' job to the flexget server to update teh 
+  // state to that plugin, then it kicks off a 'update' job to the flexget server to update teh
   // state of the config on that end.
   download( item ) {
     var self = this;
@@ -101,7 +101,7 @@ class FlexgetDownloader extends Plugin {
       // maintain state in individual plugin
       return destPlugin
         .add(item)
-        .then(getModelsAndUpdateFlexget);
+        .then(updateConfig);
     });
   }
 
@@ -195,13 +195,13 @@ class FlexgetDownloader extends Plugin {
 
       request(
         Object.assign(
-          self.getAuthorization(), 
+          self.getAuthorization(),
           {
             url:     self.getFlexgetApiUrl( 'tasks/' ),
             method:  'POST',
             json:    true,
             body:    taskConfig
-        }), 
+        }),
         function( err, resp, body ){
           if( err || (resp.statusCode !== 200 && resp.statusCode !== 201) ) {
             return reject( new Error( self.flexgetError( err, resp, body ) ) );
@@ -244,15 +244,15 @@ class FlexgetDownloader extends Plugin {
     this.logger.debug('[flexget] updating model..');
 
     const flexgetPlugins = _.filter(
-      plugins.getEnabledPluginsOfType('series'), 
+      plugins.getEnabledPluginsOfType('series'),
       (p) => {
         return typeof p.flexgetTaskModel === 'function'
           &&   typeof p.flexgetTemplateModel === 'function'
       });
 
-    const fullConfig  = _.extend( {}, 
-      this.flexgetConfig, 
-      this.schedulerConfig, 
+    const fullConfig  = _.extend( {},
+      this.flexgetConfig,
+      this.schedulerConfig,
       {
         templates: flexgetPlugins
           .map((p) => p.flexgetTemplateModel())
@@ -265,7 +265,7 @@ class FlexgetDownloader extends Plugin {
 
 
     return this.updateConfig(fullConfig)
-  } 
+  }
 
 
 }
