@@ -18,4 +18,5 @@ plugins:
     enabled: true
   com_flexget:
     enabled: true
+    flexgetCheckFrequency: 15 # minutes
 

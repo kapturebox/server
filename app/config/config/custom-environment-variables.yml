@@ -13,6 +13,7 @@ plugins:
     transmissionUser: TRANSMISSION_USER
   com_flexget:
     apiToken: FLEXGET_API_TOKEN
+    flexgetCheckFrequency: FLEXGET_CHECK_FREQUENCY
     flexgetHost: FLEXGET_HOST
     flexgetPort: FLEXGET_PORT
     flexgetPass: FLEXGET_PASSWORD
