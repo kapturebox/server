@@ -440,7 +440,7 @@
             "url": "{$.env.host}/api/v1/downloads/method:url/{$.ctx.videoUrl}"
           },
           "before": {
-            "script": "const videoUrl = \"http://kapturebox.com/video/explainer.webm\"; // video/webm\nconst imageUrl = \"http://kapturebox.com/img/logo2.png\"; // image/png\nconst musicUrl = \"https://freemusicarchive.org/music/download/4557c8c44219b0f0e313c806a725224d333c31e8\"; // audio/mpeg\n\nconst videoUrlEnc = Buffer.from(videoUrl).toString('base64');\nconst imageUrlEnc = Buffer.from(imageUrl).toString('base64');\nconst musicUrlEnc = Buffer.from(musicUrl).toString('base64');\n\n$.ctx.set('videoUrl', videoUrlEnc);\n$.ctx.set('imageUrl', imageUrlEnc);\n$.ctx.set('musicUrl', musicUrlEnc);"
+            "script": "const videoUrl = \"http://kapturebox.com/video/explainer.webm\"; // video/webm\nconst imageUrl = \"http://kapturebox.com/img/logo2.png\"; // image/png\nconst musicUrl = \"https://ia800301.us.archive.org/14/items/art_of_war_librivox/art_of_war_01-02_sun_tzu_64kb.mp3\"; // audio/mpeg\n\nconst videoUrlEnc = Buffer.from(videoUrl).toString('base64');\nconst imageUrlEnc = Buffer.from(imageUrl).toString('base64');\nconst musicUrlEnc = Buffer.from(musicUrl).toString('base64');\n\n$.ctx.set('videoUrl', videoUrlEnc);\n$.ctx.set('imageUrl', imageUrlEnc);\n$.ctx.set('musicUrl', musicUrlEnc);"
           },
           "after": {
             "assertions": [
