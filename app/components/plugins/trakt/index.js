@@ -37,17 +37,17 @@ class TraktTrending extends Plugin {
       // Description of plugin provider
       description: 'Provides various information about media sources'
     };
-  
+
     const defaultSettings = {
       enabled: true
     };
-    
+
     super(metadata, defaultSettings);
   }
 
 
   /**
-   * Main entrypoint to pull down all trending data in the format 
+   * Main entrypoint to pull down all trending data in the format
    * kapture expects
    */
   trending() {
@@ -61,12 +61,12 @@ class TraktTrending extends Plugin {
 
 
   /**
-   *  Returns information about the 'sourceId' defined ID in the format that 
-   *  kapture desires. 
-   * 
+   *  Returns information about the 'sourceId' defined ID in the format that
+   *  kapture desires.
+   *
    *  TODO: define that output format better
-   * 
-   * @param {String,Integer} id   can be either be a trakt id or a slug.  
+   *
+   * @param {String,Integer} id   can be either be a trakt id or a slug.
    *                              however according to kapture, this needs to be
    *                              the id field
    */
@@ -111,9 +111,9 @@ class TraktTrending extends Plugin {
 
 
   /**
-   *  Takes entries of the format below, and converts them into something 
+   *  Takes entries of the format below, and converts them into something
    *  kapture needs to respond via the api with
-   * 
+   *
    * Trakt entries look something like this:
    * {
    *   "watchers": 204,
@@ -130,7 +130,7 @@ class TraktTrending extends Plugin {
    *     }
    *   }
    * }
-   * 
+   *
    * @param {Object} entries   trakt formatted entries
    * @param {Object} typeObj   a type object that describes mappings between
    *                           trakt and kapture
@@ -172,7 +172,7 @@ class TraktTrending extends Plugin {
   /**
    * Given a typeObj, will return a promise that will return the proper data
    * based on the request
-   * 
+   *
    * @param {Object} typeObj  the kapture/trakt mapping object
    */
   fetchTrendingTypeObj(typeObj) {
@@ -190,10 +190,14 @@ class TraktTrending extends Plugin {
         json: true
       }, function (err, response, body) {
         if (err) {
-          reject(err);
-        } else {
-          resolve(self.formatEntries(body, typeObj));
+          return reject(err);
         }
+
+        if(_.isEmpty(body)) {
+          return reject(new Error(`empty trakt response: ${response}`));
+        }
+
+        resolve(self.formatEntries(body, typeObj));
       });
     })
   }
@@ -212,7 +216,7 @@ if (require.main === module) {
     t.trending()
       .then(console.log)
       .catch(console.error);
-  
+
     t.trendingInfo('movies-60300')
       .then(console.log)
       .catch(console.error);

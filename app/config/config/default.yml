@@ -17,6 +17,7 @@ plugins:
   com_transmissionbt:
     enabled: true
     transmissionHost: localhost
+    transmissionPort: 9091
   com_flexget:
     enabled: true
     flexgetCheckFrequency: 15 # minutes

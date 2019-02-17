@@ -6,7 +6,7 @@ downloadPaths:
   root: KAPTURE_DOWNLOAD_PATH
 
 plugins:
-  com_transmission_bt:
+  com_transmissionbt:
     transmissionHost: TRANSMISSION_HOST
     transmissionPort: TRANSMISSION_PORT
     transmissionPass: TRANSMISSION_PASS
