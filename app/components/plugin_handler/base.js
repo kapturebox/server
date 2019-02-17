@@ -5,6 +5,7 @@ const util = require('util');
 const path = require('path');
 const events = require('../events');
 const config = require('../../config');
+const _ = require('lodash');
 
 const stateStorePath = config.get('pluginStateStore');
 
@@ -37,7 +38,7 @@ class Plugin {
       var fullKeyName = this.configKey + '.' + key;
       var val = this.defaultSettings[key];
 
-      if (this.config.getUserSetting(fullKeyName) !== undefined) {
+      if(_.isEmpty(this.config.getUserSetting(fullKeyName))) {
         this.config.setUserSetting(fullKeyName, val);
       }
     }
