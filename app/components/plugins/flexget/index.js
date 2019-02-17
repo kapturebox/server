@@ -25,7 +25,7 @@ class FlexgetDownloader extends Plugin {
     const defaultSettings = {
       enabled: true,
       flexgetCheckFrequency   : 15,
-      flexgetHost: process.env.FLEXGET_HOST || 'flexget',
+      flexgetHost: process.env.FLEXGET_HOST || 'localhost',
       flexgetPort: process.env.FLEXGET_PORT || 5050,
       // API Token has precedence over the username / password
       apiToken:    process.env.FLEXGET_API_TOKEN || null,
@@ -69,7 +69,7 @@ class FlexgetDownloader extends Plugin {
     var self = this;
 
     this.getAuthorization = function() {
-      if( self.getApiToken() ) {
+      if(! _.isEmpty(self.getApiToken())) {
         return {
           headers: {
             'Authorization': util.format( 'Token %s', self.getApiToken() )
@@ -94,15 +94,10 @@ class FlexgetDownloader extends Plugin {
   // state to that plugin, then it kicks off a 'update' job to the flexget server to update teh
   // state of the config on that end.
   download( item ) {
-    var self = this;
-    return new Promise(function( resolve, reject ) {
-      var destPlugin = plugins.getPlugin( item.sourceId );
-
-      // maintain state in individual plugin
-      return destPlugin
-        .add(item)
-        .then(updateConfig);
-    });
+    return plugins
+      .getPlugin(item.sourceId)
+      .add(item)
+      .then(this.getModelsAndUpdateFlexget.bind(this));
   }
 
   downloadId( id ) {
@@ -140,7 +135,7 @@ class FlexgetDownloader extends Plugin {
     var self = this;
     return new Promise(function( resolve, reject ) {
       self.logger.debug( 'updating flexget config with:', fullFlexgetConfig );
-      self.logger.debug( 'using api token: ', self.getApiToken() );
+      self.logger.debug( 'using auth: ', self.getAuthorization() );
 
       var base64yaml = new Buffer( YAML.stringify( fullFlexgetConfig, 8 ) ).toString('base64');
 

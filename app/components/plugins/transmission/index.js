@@ -24,7 +24,7 @@ class TransmissionDownloader extends Plugin {
 
     const defaultSettings = {
       enabled: true,
-      transmissionHost: process.env.TRANSMISSION_HOST || 'transmission',
+      transmissionHost: process.env.TRANSMISSION_HOST || 'localhost',
       transmissionPort: process.env.TRANSMISSION_PORT || 9091,
       transmissionUser: process.env.TRANSMISSION_USER || 'admin',
       transmissionPass: process.env.TRANSMISSION_PASS || 'password',

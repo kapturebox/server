@@ -32,9 +32,14 @@ class Plugin {
       this.logger.error('unable to init state store: %s', err.toString());
     }
 
-    // init settings if not already present
-    if (!this.config.getUserSetting(this.configKey)) {
-      this.config.setUserSetting(this.configKey, this.defaultSettings || {});
+    // init default settings one by one if not already present
+    for(var key of Object.keys(this.defaultSettings)) {
+      var fullKeyName = this.configKey + '.' + key;
+      var val = this.defaultSettings[key];
+
+      if (this.config.getUserSetting(fullKeyName) !== undefined) {
+        this.config.setUserSetting(fullKeyName, val);
+      }
     }
   }
 
