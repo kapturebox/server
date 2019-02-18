@@ -1,7 +1,7 @@
 const Promise = require('bluebird');
 const util = require('util');
 const _ = require('lodash');
-const request = require('request');
+const request = require('request-promise');
 const Plugin = require('../../plugin_handler/base');
 
 
@@ -82,8 +82,8 @@ class TraktTrending extends Plugin {
 
     const url = util.format('https://api.trakt.tv/%s/%s?extended=full', type, realId);
 
-    return new Promise(function (resolve, reject) {
-      request({
+    return request
+      .get({
         method: 'GET',
         url: url,
         headers: {
@@ -92,14 +92,7 @@ class TraktTrending extends Plugin {
           'trakt-api-key': CLIENT_ID
         },
         json: true
-      }, function (err, response, body) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(body);
-        }
       });
-    });
   }
 
 
@@ -176,11 +169,8 @@ class TraktTrending extends Plugin {
    * @param {Object} typeObj  the kapture/trakt mapping object
    */
   fetchTrendingTypeObj(typeObj) {
-    const self = this;
-
-    return new Promise(function (resolve, reject) {
-      request({
-        method: 'GET',
+    return request
+      .get({
         url: util.format('https://api.trakt.tv/%s/trending', typeObj.traktType),
         headers: {
           'Content-Type': 'application/json',
@@ -188,18 +178,8 @@ class TraktTrending extends Plugin {
           'trakt-api-key': CLIENT_ID
         },
         json: true
-      }, function (err, response, body) {
-        if (err) {
-          return reject(err);
-        }
-
-        if(_.isEmpty(body)) {
-          return reject(new Error(`empty trakt response: ${response}`));
-        }
-
-        resolve(self.formatEntries(body, typeObj));
-      });
-    })
+      })
+      .then(entries => this.formatEntries(entries, typeObj));
   }
 
 }

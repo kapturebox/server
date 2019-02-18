@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var request = require('request');
 var Promise = require('bluebird');
 
 

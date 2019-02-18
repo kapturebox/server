@@ -1,12 +1,3 @@
-
-
-var _ = require('lodash');
-var request = require('request');
-var Promise = require('bluebird');
-var fs = require('fs');
-
-var plugins = require('../../components/plugin_handler');
-
 var DownloadService = require('../../components/download_service');
 
 
