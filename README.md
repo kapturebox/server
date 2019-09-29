@@ -22,3 +22,8 @@ Then connect to http://localhost:9000
 # API Spec
 
 [The entire API spec is well documented here](http://kapture.docs.stoplight.io)
+
+
+# Plugins to add
+
+- https://www.flixgrab.com/ - to pull down netflix content
