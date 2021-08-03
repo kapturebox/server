@@ -29,7 +29,7 @@
     "torrent-search-api": "^2.0.5",
     "winston": "^2.4.4",
     "xml2json-light": "^1.0.6",
-    "xmldom": "^0.1.27",
+    "xmldom": "^0.6.0",
     "xpath": "0.0.27",
     "yamljs": "^0.3.0",
     "youtube-dl": "^1.12.2",
