@@ -1,0 +1,18 @@
+name: Build / Test
+# run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: apt install docker.io docker-compose
+      - uses: actions/checkout@v3
+
+      - run: docker-compose -p server -f docker-compose.yml up -d --build && sleep 20
+
+      # some quick checks to see if it's working as intended
+      - run: docker exec server_server_1 curl localhost:9000
+      - run: docker-compose -p server logs
+
+      # run protractor tests against spun up instance
+      - run: docker run -v $(pwd)/app/tests:/tests --network server_default stoplight/prism conduct /tests/scenarios.json -e host=http://server:9000
