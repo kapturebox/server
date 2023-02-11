@@ -6,7 +6,7 @@ WORKDIR /app
 RUN [ "cross-build-start" ]
 
 RUN apk update \
-  && apk add curl python \
+  && apk add curl python3 \
   # needed for youtube-dl
   && npm install -g gulp
 
