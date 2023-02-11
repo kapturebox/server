@@ -26,13 +26,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: user/app:latest
+          tags: kapturebox/server:d_latest
       -
         name: Build and push arm
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: user/app:latest
+          tags: kapturebox/server:d_latest-arm
           file: Dockerfile.arm
 
 
