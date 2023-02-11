@@ -5,3 +5,5 @@ pluginStateStore
 app/config/config/local.yml
 stoplightcommands.md
 yarn.lock
+**/.DS_Store
+.env

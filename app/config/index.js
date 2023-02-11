@@ -33,7 +33,7 @@ exports.set = (key, value) => {
     this.logger.debug( 'writing settings file: %s', JSON.stringify(newObj, null, 4) );
   } else if( typeof( key ) === 'string' ) {
     newObj = _.set( original, key, value );
-    this.logger.debug( 'writing setting %s =', key, value );
+    this.logger.debug( 'writing setting %s = %s', key, value );
   } else {
     throw new TypeError('cant change setting - need valid key in proper format (string or object)');
   }

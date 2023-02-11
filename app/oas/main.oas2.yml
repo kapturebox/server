@@ -1,950 +1,949 @@
----
-  swagger: "2.0"
-  info: 
-    version: "1.0"
-    title: "Kapture API"
-    description: "This is the API spec for kapture to perform all the functions that are needed to \"curate your media\"."
-    contact: 
-      name: "Evin Callahan"
-      url: "http://kapturebox.com"
-    license: 
-      name: ""
-  host: "kapture.local"
-  schemes: 
-    - "http"
-  consumes: 
-    - "application/json"
-  produces: 
-    - "application/json"
-  securityDefinitions: {}
-  paths: 
-    /search: 
-      get: 
-        responses: 
-          200: 
-            $ref: "#/responses/searchResponse"
-        description: "Searches all 'sources' to return results that match the `q` argument in the query string"
-        operationId: "search"
-        parameters: 
-          - 
-            in: "query"
-            name: "q"
-            type: "string"
-            description: "String to query sources for"
-            required: true
-          - 
-            $ref: "#/parameters/filterQueryString"
-        summary: "Search all available sources"
-        tags: 
-          - "Searching"
-    /downloads: 
-      get: 
-        responses: 
-          200: 
-            description: "Successfully got download results"
-            schema: {}
-        summary: "Get all downloads, active and inactive"
-        operationId: "getalldownloads"
-        parameters: 
-          - 
-            $ref: "#/parameters/filterQueryString"
-        tags: 
-          - "Downloading"
-        description: "Returns a list of all of the downloads that this instance of kapture has been responsible for.  Both active and inactive results will be returned"
-    /series/{sourceId}/{entryId}: 
-      post: 
-        responses: 
-          202: 
-            description: "Successfully added series"
-            schema: 
-              type: "object"
-              properties: {}
-          400: 
-            description: "Invalid request (see error)"
-        parameters: 
-          - 
-            in: "path"
-            name: "sourceId"
-            type: "string"
-            required: true
-            description: "ID of source plugin to request entryId from"
-          - 
-            in: "path"
-            name: "entryId"
-            type: "string"
-            required: true
-            description: "ID of series in question that you want added to autokapture"
-        summary: "Start a new series to be autokaptured"
-        operationId: "enableseries"
-        tags: 
-          - "Series"
-        description: "Enables a new series to be autokaptured and downloaded whenever a new episode of that series is discovered."
-      parameters: 
-        - 
-          name: "sourceId"
-          in: "path"
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "Kapture API"
+  description: "This is the API spec for kapture to perform all the functions that are needed to \"curate your media\"."
+  contact:
+    name: "Evin Callahan"
+    url: "http://kapturebox.com"
+  license:
+    name: ""
+host: "kapture.local"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+securityDefinitions: {}
+paths:
+  /search:
+    get:
+      responses:
+        200:
+          $ref: "#/responses/searchResponse"
+      description: "Searches all 'sources' to return results that match the `q` argument in the query string"
+      operationId: "search"
+      parameters:
+        -
+          in: "query"
+          name: "q"
           type: "string"
+          description: "String to query sources for"
           required: true
-        - 
-          name: "entryId"
-          in: "path"
-          type: "string"
-          required: true
-      delete: 
-        responses: 
-          202: 
-            description: "Successfully deleted autokaptured series"
-            schema: 
-              type: "object"
-              properties: {}
-          400: 
-            description: "Invalid request (see error)"
-        summary: "Delete a series from being autokaptured"
-        parameters: 
-          - 
-            in: "path"
-            name: "sourceId"
-            type: "string"
-            required: true
-          - 
-            in: "path"
-            name: "entryId"
-            type: "string"
-            required: true
-        operationId: "deleteseries"
-        tags: 
-          - "Series"
-        description: "Stops a specific `seriesId` from being autokaptured"
-      get: 
-        responses: 
-          200: 
-            $ref: "#/responses/seriesInfoResponse"
-          404: 
-            description: "Series doesn't exist"
-        summary: "Get details about a specific series"
-        description: "Will return an object with as much data as the source can provide, however it will namely return info about \"seen\" episodes, as well as \"upcoming\" ones."
-        operationId: "getseriesinfo"
-        tags: 
-          - "Series"
-    /series: 
-      get: 
-        responses: 
-          200: 
-            description: "Provides info on all currently enabled series"
-            schema: 
-              type: "array"
-              items: 
-                $ref: "#/definitions/seriesEnabledEntry"
-            examples: {}
-        summary: "Get all currently configured autokapture series"
-        operationId: "getallseries"
-        tags: 
-          - "Series"
-        description: "Returns an array of `seriesEntry` objects that are currently configured to be autokaptured"
-        parameters: 
-          - 
-            $ref: "#/parameters/filterQueryString"
-    /settings: 
-      get: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Get all current settings"
-        operationId: "getallsettings"
-        tags: 
-          - "Settings"
-        description: "Gets a list of all settings currently active"
-      put: 
-        responses: 
-          202: 
-            description: "Updated successfully"
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Change ALL settings via body object"
-        description: "This will allow you to change all of the settings in the system at once.. if parts of the object are missing they will be nullified.  If you don't want this behavior, use the `PATCH` method."
-        operationId: "putallsettings"
-        tags: 
-          - "Settings"
-        parameters: 
-          - 
-            in: "body"
-            name: "body"
-            schema: 
-              $ref: "#/definitions/settingsModel"
-            description: "Settings to change"
-            x-examples: 
-              application/json: 
-                downloadPaths: 
-                  default: "in commodo esse"
-                  movies: "dolor proident"
-                  music: "sit labore"
-                  photos: "amet velit"
-                  root: "aliqua adipisicing"
-                  series: "qui et adipisicing aute labor"
-                plugins: 
-                  com_flexget: 
-                    apiToken: null
-                    enabled: true
-                    flexgetCheckFrequency: -73103553
-                    flexgetHost: "commodo aliquip minim"
-                    flexgetPass: "fugiat"
-                    flexgetPort: 41967102
-                    flexgetUser: "esse quis"
-                  com_kapture_url: 
-                    enabled: true
-                  com_piratebay: 
-                    enabled: true
-                  com_transmissionbt: 
-                    enabled: true
-                    transmissionHost: "ipsum"
-                    transmissionPass: "labore laborum sit"
-                    transmissionPort: -45449836
-                    transmissionUser: "eu ut ea magna"
-                  com_youtube: 
-                    enabled: false
-                  info_showrss: 
-                    enabled: false
-                system: 
-                  name: "dolor mollit proident amet"
-                userInfo: 
-                  email: "ipsum eiusmod velit labore"
-      patch: 
-        responses: 
-          202: 
-            description: "Successfully changed settings"
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Update only the settings presented in body"
-        description: "This will update only the supplied settings"
-        operationId: "patchsettings"
-        tags: 
-          - "Settings"
-        parameters: 
-          - 
-            in: "body"
-            name: "body"
-            schema: 
-              $ref: "#/definitions/settingsModel"
-            description: "All of these options are optional, only supply the ones that need to be updated"
-            x-examples: {}
-    /settings/{key}: 
-      get: 
-        responses: 
-          200: 
-            description: "Value of requested setting"
-            schema: 
-              type: "object"
-              required: 
-                - "value"
-              properties: 
-                value: 
-                  type: "string"
-          404: 
-            description: "Setting not found"
-        summary: "Get a setting"
-        operationId: "getsetting"
-        tags: 
-          - "Settings"
-        description: "Returns the value of a specific setting supplied in the `key` argument"
-      parameters: 
-        - 
-          name: "key"
-          in: "path"
-          type: "string"
-          required: true
-          description: "Key of setting you would like to change (nested keys are separated by .)"
-    /downloads/source:{sourceId}/{entryId}: 
-      post: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-          400: 
-            description: "Invalid request (see error)"
-        summary: "Start download based on source configuration of entryId"
-        description: "Allows `sourceId` plugin to determine how to download the given `entryId` denoted by the `id` field of search source objects.  If this is a series, it largely does the same thing that a `POST /series/{sourceId}/{entryId}` does."
-        operationId: "startdownloadfromsource"
-        tags: 
-          - "Downloading"
-      parameters: 
-        - 
-          name: "sourceId"
-          in: "path"
-          type: "string"
-          required: true
-        - 
-          name: "entryId"
-          in: "path"
-          type: "string"
-          required: true
-    /downloads/method:{methodId}/{slug}: 
-      post: 
-        responses: 
-          200: 
-            description: "Successfully started new download. Returns information about newly started download."
-            schema: 
-              type: "object"
-              properties: {}
-          400: 
-            description: "Invalid `methodId` provided"
-        summary: "Start download based on download method"
-        description: "Starts a new download based on `methodId` download provider of `slug` value provided by source.\n\nIn order to allow for various content in the `slug` field, **this field must be base64 encoded**.  Generally source plugins will return the slug in this format."
-        operationId: "startdownloadfrommethod"
-        tags: 
-          - "Downloading"
-        parameters: 
-          - 
-            in: "query"
-            name: "where"
-            type: "string"
-            description: "String of download path where the downloaded file should be placed after completion.  If not set, defaults to `default` download path setting"
-            enum: 
-              - "default"
-              - "movies"
-              - "music"
-              - "photos"
-              - "shows"
-            allowEmptyValue: true
-      parameters: 
-        - 
-          name: "methodId"
-          in: "path"
-          type: "string"
-          required: true
-          description: "`methodId` that determines how the `slug` should be downloaded via"
-        - 
-          name: "slug"
-          in: "path"
-          type: "string"
-          required: true
-          description: "slug provided by source that represents what entry is desired to be initiatated"
-    /trending: 
-      get: 
-        responses: 
-          200: 
-            $ref: "#/responses/trendingMediaAggregateResponse"
-          409: 
-            description: "Unable to perform request due to unexpected issue (see error)"
-        summary: "Get currently trending media"
-        parameters: 
-          - 
-            $ref: "#/parameters/filterQueryString"
-        operationId: "gettrending"
-        tags: 
-          - "Trending"
-        description: "Gets a list of all currently trending media from all enabled `trending` sources.  The `filter` querystring argument can be used to filter on entry object key/values, including the `sourceId` of the trending media object"
-    /downloads/{id}: 
-      delete: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Stops the given download ID"
-        operationId: "stopdownload"
-        tags: 
-          - "Downloading"
-        parameters: 
-          - 
-            in: "query"
-            name: "fromDisk"
-            type: "boolean"
-            description: "If set to true, will delete the file from disk as well"
-            default: false
-        description: "This will stop an active download, and/or delete the file from disk as needed.  If you want to just delete files, you can use this on a completed download as well."
-      parameters: 
-        - 
-          name: "id"
-          in: "path"
-          type: "string"
-          required: true
-      get: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Gets the given download ID"
-        operationId: "getdownload"
-        tags: 
-          - "Downloading"
-        description: "Gets details about a specific download `id`"
-    /uploads: 
-      get: 
-        responses: 
-          200: 
-            description: "List of uploads"
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Get a list of all of the uploads that have been performed"
-        operationId: "getuploads"
-        tags: 
-          - "Uploading"
-        description: "Returns only a list of uploads that have been **successfully** sent to this kapture instance"
-      post: 
-        responses: 
-          202: 
-            description: "Successfully uploaded file"
-            schema: 
-              type: "object"
-              properties: {}
-        summary: "Uploads a new file"
-        parameters: 
-          - 
-            in: "formData"
-            name: "file"
-            type: "file"
-            required: true
-            description: "Binary upload data"
-          - 
-            in: "formData"
-            name: "type"
-            type: "string"
-            description: "Type of the media being uploaded"
-            enum: 
-              - "movie"
-              - "tvshow"
-              - "music"
-              - "other"
-              - "photo"
-              - "auto"
-            required: true
-            default: "other"
-        operationId: "newupload"
-        tags: 
-          - "Uploading"
-        description: "Upload a new file to kapture instance.  This should be uploaded via the multipart upload method, and will accept any files that are sent to it, regardless if the media player enabled can handle it."
-    /trending/{sourceId}/info/{id}: 
-      get: 
-        responses: 
-          200: 
-            description: ""
-            schema: 
-              type: "object"
-              properties: {}
-          400: 
-            description: "Invalid request (see error)"
-        summary: "Get more details about trending entry"
-        description: "Will provide as much info as possible to the user about a specific trending `id` from a given `sourceId`."
-        operationId: "trendinginfo"
-        tags: 
-          - "Trending"
-      parameters: 
-        - 
-          name: "sourceId"
-          in: "path"
-          type: "string"
-          required: true
-        - 
-          name: "id"
-          in: "path"
-          type: "string"
-          required: true
-  definitions: 
-    downloadEntry: 
-      type: "object"
-      description: "A typical download entry will look something like this"
-      properties: 
-        type: 
-          type: "string"
-          enum: 
-            - "other"
-            - "movie"
-            - "music"
-            - "photo"
-            - "series"
-        sourceId: 
-          type: "string"
-        size: 
-          type: "integer"
-        startDate: 
-          type: "string"
-          format: "date-time"
-        title: 
-          type: "string"
-        downloadMechanism: 
-          type: "string"
-        id: 
-          type: "string"
-        percentDone: 
-          type: "integer"
-        rateDownload: 
-          type: "integer"
-        eta: 
-          type: "integer"
-        isFinished: 
-          type: "boolean"
-        isStalled: 
-          type: "boolean"
-        sourceData: 
-          type: "object"
-      required: 
-        - "id"
-        - "percentDone"
-        - "eta"
-        - "isFinished"
-        - "isStalled"
-    searchResultEntry: 
-      type: "object"
-      description: "A single entry for what you'll normally get back from the search results endpoint"
-      title: "searchResultEntry"
-      properties: 
-        sourceId: 
-          type: "string"
-        sourceName: 
-          type: "string"
-        score: 
-          type: "number"
-        downloadMechanism: 
-          type: "string"
-        flexgetModel: 
-          type: "string"
-        type: 
-          type: "string"
-          enum: 
-            - "series"
-            - "movie"
-            - "other"
-            - "music"
-            - "photo"
-        id: 
-          type: "string"
-        category: 
-          type: "string"
-        size: 
-          type: "string"
-        title: 
-          type: "string"
-      required: 
-        - "sourceId"
-        - "downloadMechanism"
-        - "id"
-        - "title"
-    seriesEntry: 
-      type: "object"
-      description: "A (usually) tvshow series entry provided by a plugin"
-      properties: 
-        sourceId: 
-          type: "string"
-        sourceName: 
-          type: "string"
-        flexgetModel: 
-          type: "string"
-        type: 
-          type: "string"
-          enum: 
-            - "series"
-            - "movie"
-            - "music"
-            - "photo"
-            - "other"
-        id: 
-          type: "string"
-        category: 
-          type: "string"
-        size: 
-          type: "string"
-        title: 
-          type: "string"
-      required: 
-        - "sourceId"
-        - "type"
-        - "id"
-        - "title"
-    trendingMediaEntry: 
-      type: "object"
-      description: "How a trending-media object is presented"
-      properties: 
-        type: 
-          type: "string"
-          enum: 
-            - "other"
-            - "music"
-            - "series"
-            - "movie"
-            - "photo"
-        title: 
-          type: "string"
-        additionalInfoUrl: 
-          type: "string"
-        sourceId: 
-          type: "string"
-        id: 
-          type: "string"
-        score: 
-          type: "number"
-    settingsModel: 
-      type: "object"
-      description: "Represents the settings of the currently running kapture system"
-      properties: 
-        downloadPaths: 
-          type: "object"
-          properties: 
-            default: 
-              type: "string"
-            movies: 
-              type: "string"
-            music: 
-              type: "string"
-            photos: 
-              type: "string"
-            root: 
-              type: "string"
-            series: 
-              type: "string"
-        plugins: 
-          type: "object"
-          properties: 
-            com_flexget: 
-              type: "object"
-              properties: 
-                apiToken: 
-                  type: "null"
-                enabled: 
-                  type: "boolean"
-                flexgetCheckFrequency: 
-                  type: "integer"
-                flexgetHost: 
-                  type: "string"
-                flexgetPass: 
-                  type: "string"
-                flexgetPort: 
-                  type: "integer"
-                flexgetUser: 
-                  type: "string"
-            com_kapture_url: 
-              type: "object"
-              properties: 
-                enabled: 
-                  type: "boolean"
-            com_piratebay: 
-              type: "object"
-              properties: 
-                enabled: 
-                  type: "boolean"
-            com_transmissionbt: 
-              type: "object"
-              properties: 
-                enabled: 
-                  type: "boolean"
-                transmissionHost: 
-                  type: "string"
-                transmissionPass: 
-                  type: "string"
-                transmissionPort: 
-                  type: "integer"
-                transmissionUser: 
-                  type: "string"
-            com_youtube: 
-              type: "object"
-              properties: 
-                enabled: 
-                  type: "boolean"
-            info_showrss: 
-              type: "object"
-              properties: 
-                enabled: 
-                  type: "boolean"
-        system: 
-          type: "object"
-          properties: 
-            name: 
-              type: "string"
-        userInfo: 
-          type: "object"
-          properties: 
-            email: 
-              type: 
-                - "null"
-                - "string"
-    trendingMediaAggregateModel: 
-      type: "object"
-      description: "Captures a the response from an aggregation of trending media sources"
-      properties: 
-        series: 
-          type: 
-            - "array"
-            - "null"
-          items: 
-            $ref: "#/definitions/trendingMediaEntry"
-        photos: 
-          type: 
-            - "array"
-            - "null"
-          items: 
-            $ref: "#/definitions/trendingMediaEntry"
-        music: 
-          type: 
-            - "array"
-            - "null"
-          items: 
-            $ref: "#/definitions/trendingMediaEntry"
-        movies: 
-          type: 
-            - "array"
-            - "null"
-          items: 
-            $ref: "#/definitions/trendingMediaEntry"
-        other: 
-          type: 
-            - "array"
-            - "null"
-          items: 
-            $ref: "#/definitions/trendingMediaEntry"
-    seriesInfoEntry: 
-      type: "object"
-      properties: 
-        seen: 
-          type: "array"
-          items: 
+        -
+          $ref: "#/parameters/filterQueryString"
+      summary: "Search all available sources"
+      tags:
+        - "Searching"
+  /downloads:
+    get:
+      responses:
+        200:
+          description: "Successfully got download results"
+          schema: {}
+      summary: "Get all downloads, active and inactive"
+      operationId: "getalldownloads"
+      parameters:
+        -
+          $ref: "#/parameters/filterQueryString"
+      tags:
+        - "Downloading"
+      description: "Returns a list of all of the downloads that this instance of kapture has been responsible for.  Both active and inactive results will be returned"
+  /series/{sourceId}/{entryId}:
+    post:
+      responses:
+        202:
+          description: "Successfully added series"
+          schema:
             type: "object"
-            properties: 
-              title: 
-                type: "string"
-              uploaded: 
-                type: "string"
-                format: "date-time"
-              slug: 
-                type: "string"
-              sourceData: 
-                type: "string"
-              downloadMechanism: 
-                type: "string"
-              showName: 
-                type: "string"
-        upcoming: 
-          type: "array"
-          items: 
+            properties: {}
+        400:
+          description: "Invalid request (see error)"
+      parameters:
+        -
+          in: "path"
+          name: "sourceId"
+          type: "string"
+          required: true
+          description: "ID of source plugin to request entryId from"
+        -
+          in: "path"
+          name: "entryId"
+          type: "string"
+          required: true
+          description: "ID of series in question that you want added to autokapture"
+      summary: "Start a new series to be autokaptured"
+      operationId: "enableseries"
+      tags:
+        - "Series"
+      description: "Enables a new series to be autokaptured and downloaded whenever a new episode of that series is discovered."
+    parameters:
+      -
+        name: "sourceId"
+        in: "path"
+        type: "string"
+        required: true
+      -
+        name: "entryId"
+        in: "path"
+        type: "string"
+        required: true
+    delete:
+      responses:
+        202:
+          description: "Successfully deleted autokaptured series"
+          schema:
             type: "object"
-            properties: 
-              title: 
+            properties: {}
+        400:
+          description: "Invalid request (see error)"
+      summary: "Delete a series from being autokaptured"
+      parameters:
+        -
+          in: "path"
+          name: "sourceId"
+          type: "string"
+          required: true
+        -
+          in: "path"
+          name: "entryId"
+          type: "string"
+          required: true
+      operationId: "deleteseries"
+      tags:
+        - "Series"
+      description: "Stops a specific `seriesId` from being autokaptured"
+    get:
+      responses:
+        200:
+          $ref: "#/responses/seriesInfoResponse"
+        404:
+          description: "Series doesn't exist"
+      summary: "Get details about a specific series"
+      description: "Will return an object with as much data as the source can provide, however it will namely return info about \"seen\" episodes, as well as \"upcoming\" ones."
+      operationId: "getseriesinfo"
+      tags:
+        - "Series"
+  /series:
+    get:
+      responses:
+        200:
+          description: "Provides info on all currently enabled series"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/seriesEnabledEntry"
+          examples: {}
+      summary: "Get all currently configured autokapture series"
+      operationId: "getallseries"
+      tags:
+        - "Series"
+      description: "Returns an array of `seriesEntry` objects that are currently configured to be autokaptured"
+      parameters:
+        -
+          $ref: "#/parameters/filterQueryString"
+  /settings:
+    get:
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Get all current settings"
+      operationId: "getallsettings"
+      tags:
+        - "Settings"
+      description: "Gets a list of all settings currently active"
+    put:
+      responses:
+        202:
+          description: "Updated successfully"
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Change ALL settings via body object"
+      description: "This will allow you to change all of the settings in the system at once.. if parts of the object are missing they will be nullified.  If you don't want this behavior, use the `PATCH` method."
+      operationId: "putallsettings"
+      tags:
+        - "Settings"
+      parameters:
+        -
+          in: "body"
+          name: "body"
+          schema:
+            $ref: "#/definitions/settingsModel"
+          description: "Settings to change"
+          x-examples:
+            application/json:
+              downloadPaths:
+                default: "in commodo esse"
+                movies: "dolor proident"
+                music: "sit labore"
+                photos: "amet velit"
+                root: "aliqua adipisicing"
+                series: "qui et adipisicing aute labor"
+              plugins:
+                com_flexget:
+                  apiToken: null
+                  enabled: true
+                  flexgetCheckFrequency: -73103553
+                  flexgetHost: "commodo aliquip minim"
+                  flexgetPass: "fugiat"
+                  flexgetPort: 41967102
+                  flexgetUser: "esse quis"
+                com_kapture_url:
+                  enabled: true
+                com_piratebay:
+                  enabled: true
+                com_transmissionbt:
+                  enabled: true
+                  transmissionHost: "ipsum"
+                  transmissionPass: "labore laborum sit"
+                  transmissionPort: -45449836
+                  transmissionUser: "eu ut ea magna"
+                com_youtube:
+                  enabled: false
+                info_showrss:
+                  enabled: false
+              system:
+                name: "dolor mollit proident amet"
+              userInfo:
+                email: "ipsum eiusmod velit labore"
+    patch:
+      responses:
+        202:
+          description: "Successfully changed settings"
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Update only the settings presented in body"
+      description: "This will update only the supplied settings"
+      operationId: "patchsettings"
+      tags:
+        - "Settings"
+      parameters:
+        -
+          in: "body"
+          name: "body"
+          schema:
+            $ref: "#/definitions/settingsModel"
+          description: "All of these options are optional, only supply the ones that need to be updated"
+          x-examples: {}
+  /settings/{key}:
+    get:
+      responses:
+        200:
+          description: "Value of requested setting"
+          schema:
+            type: "object"
+            required:
+              - "value"
+            properties:
+              value:
                 type: "string"
-              date: 
+        404:
+          description: "Setting not found"
+      summary: "Get a setting"
+      operationId: "getsetting"
+      tags:
+        - "Settings"
+      description: "Returns the value of a specific setting supplied in the `key` argument"
+    parameters:
+      -
+        name: "key"
+        in: "path"
+        type: "string"
+        required: true
+        description: "Key of setting you would like to change (nested keys are separated by .)"
+  /downloads/source:{sourceId}/{entryId}:
+    post:
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties: {}
+        400:
+          description: "Invalid request (see error)"
+      summary: "Start download based on source configuration of entryId"
+      description: "Allows `sourceId` plugin to determine how to download the given `entryId` denoted by the `id` field of search source objects.  If this is a series, it largely does the same thing that a `POST /series/{sourceId}/{entryId}` does."
+      operationId: "startdownloadfromsource"
+      tags:
+        - "Downloading"
+    parameters:
+      -
+        name: "sourceId"
+        in: "path"
+        type: "string"
+        required: true
+      -
+        name: "entryId"
+        in: "path"
+        type: "string"
+        required: true
+  /downloads/method:{methodId}/{slug}:
+    post:
+      responses:
+        200:
+          description: "Successfully started new download. Returns information about newly started download."
+          schema:
+            type: "object"
+            properties: {}
+        400:
+          description: "Invalid `methodId` provided"
+      summary: "Start download based on download method"
+      description: "Starts a new download based on `methodId` download provider of `slug` value provided by source.\n\nIn order to allow for various content in the `slug` field, **this field must be base64 encoded**.  Generally source plugins will return the slug in this format."
+      operationId: "startdownloadfrommethod"
+      tags:
+        - "Downloading"
+      parameters:
+        -
+          in: "query"
+          name: "where"
+          type: "string"
+          description: "String of download path where the downloaded file should be placed after completion.  If not set, defaults to `default` download path setting"
+          enum:
+            - "default"
+            - "movies"
+            - "music"
+            - "photos"
+            - "shows"
+          allowEmptyValue: true
+    parameters:
+      -
+        name: "methodId"
+        in: "path"
+        type: "string"
+        required: true
+        description: "`methodId` that determines how the `slug` should be downloaded via"
+      -
+        name: "slug"
+        in: "path"
+        type: "string"
+        required: true
+        description: "slug provided by source that represents what entry is desired to be initiatated"
+  /trending:
+    get:
+      responses:
+        200:
+          $ref: "#/responses/trendingMediaAggregateResponse"
+        409:
+          description: "Unable to perform request due to unexpected issue (see error)"
+      summary: "Get currently trending media"
+      parameters:
+        -
+          $ref: "#/parameters/filterQueryString"
+      operationId: "gettrending"
+      tags:
+        - "Trending"
+      description: "Gets a list of all currently trending media from all enabled `trending` sources.  The `filter` querystring argument can be used to filter on entry object key/values, including the `sourceId` of the trending media object"
+  /downloads/{id}:
+    delete:
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Stops the given download ID"
+      operationId: "stopdownload"
+      tags:
+        - "Downloading"
+      parameters:
+        -
+          in: "query"
+          name: "fromDisk"
+          type: "boolean"
+          description: "If set to true, will delete the file from disk as well"
+          default: false
+      description: "This will stop an active download, and/or delete the file from disk as needed.  If you want to just delete files, you can use this on a completed download as well."
+    parameters:
+      -
+        name: "id"
+        in: "path"
+        type: "string"
+        required: true
+    get:
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Gets the given download ID"
+      operationId: "getdownload"
+      tags:
+        - "Downloading"
+      description: "Gets details about a specific download `id`"
+  /uploads:
+    get:
+      responses:
+        200:
+          description: "List of uploads"
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Get a list of all of the uploads that have been performed"
+      operationId: "getuploads"
+      tags:
+        - "Uploading"
+      description: "Returns only a list of uploads that have been **successfully** sent to this kapture instance"
+    post:
+      responses:
+        202:
+          description: "Successfully uploaded file"
+          schema:
+            type: "object"
+            properties: {}
+      summary: "Uploads a new file"
+      parameters:
+        -
+          in: "formData"
+          name: "file"
+          type: "file"
+          required: true
+          description: "Binary upload data"
+        -
+          in: "formData"
+          name: "type"
+          type: "string"
+          description: "Type of the media being uploaded"
+          enum:
+            - "movie"
+            - "tvshow"
+            - "music"
+            - "other"
+            - "photo"
+            - "auto"
+          required: true
+          default: "other"
+      operationId: "newupload"
+      tags:
+        - "Uploading"
+      description: "Upload a new file to kapture instance.  This should be uploaded via the multipart upload method, and will accept any files that are sent to it, regardless if the media player enabled can handle it."
+  /trending/{sourceId}/info/{id}:
+    get:
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "object"
+            properties: {}
+        400:
+          description: "Invalid request (see error)"
+      summary: "Get more details about trending entry"
+      description: "Will provide as much info as possible to the user about a specific trending `id` from a given `sourceId`."
+      operationId: "trendinginfo"
+      tags:
+        - "Trending"
+    parameters:
+      -
+        name: "sourceId"
+        in: "path"
+        type: "string"
+        required: true
+      -
+        name: "id"
+        in: "path"
+        type: "string"
+        required: true
+definitions:
+  downloadEntry:
+    type: "object"
+    description: "A typical download entry will look something like this"
+    properties:
+      type:
+        type: "string"
+        enum:
+          - "other"
+          - "movie"
+          - "music"
+          - "photo"
+          - "series"
+      sourceId:
+        type: "string"
+      size:
+        type: "integer"
+      startDate:
+        type: "string"
+        format: "date-time"
+      title:
+        type: "string"
+      downloadMechanism:
+        type: "string"
+      id:
+        type: "string"
+      percentDone:
+        type: "integer"
+      rateDownload:
+        type: "integer"
+      eta:
+        type: "integer"
+      isFinished:
+        type: "boolean"
+      isStalled:
+        type: "boolean"
+      sourceData:
+        type: "object"
+    required:
+      - "id"
+      - "percentDone"
+      - "eta"
+      - "isFinished"
+      - "isStalled"
+  searchResultEntry:
+    type: "object"
+    description: "A single entry for what you'll normally get back from the search results endpoint"
+    title: "searchResultEntry"
+    properties:
+      sourceId:
+        type: "string"
+      sourceName:
+        type: "string"
+      score:
+        type: "number"
+      downloadMechanism:
+        type: "string"
+      flexgetModel:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+          - "series"
+          - "movie"
+          - "other"
+          - "music"
+          - "photo"
+      id:
+        type: "string"
+      category:
+        type: "string"
+      size:
+        type: "string"
+      title:
+        type: "string"
+    required:
+      - "sourceId"
+      - "downloadMechanism"
+      - "id"
+      - "title"
+  seriesEntry:
+    type: "object"
+    description: "A (usually) tvshow series entry provided by a plugin"
+    properties:
+      sourceId:
+        type: "string"
+      sourceName:
+        type: "string"
+      flexgetModel:
+        type: "string"
+      type:
+        type: "string"
+        enum:
+          - "series"
+          - "movie"
+          - "music"
+          - "photo"
+          - "other"
+      id:
+        type: "string"
+      category:
+        type: "string"
+      size:
+        type: "string"
+      title:
+        type: "string"
+    required:
+      - "sourceId"
+      - "type"
+      - "id"
+      - "title"
+  trendingMediaEntry:
+    type: "object"
+    description: "How a trending-media object is presented"
+    properties:
+      type:
+        type: "string"
+        enum:
+          - "other"
+          - "music"
+          - "series"
+          - "movie"
+          - "photo"
+      title:
+        type: "string"
+      additionalInfoUrl:
+        type: "string"
+      sourceId:
+        type: "string"
+      id:
+        type: "string"
+      score:
+        type: "number"
+  settingsModel:
+    type: "object"
+    description: "Represents the settings of the currently running kapture system"
+    properties:
+      downloadPaths:
+        type: "object"
+        properties:
+          default:
+            type: "string"
+          movies:
+            type: "string"
+          music:
+            type: "string"
+          photos:
+            type: "string"
+          root:
+            type: "string"
+          series:
+            type: "string"
+      plugins:
+        type: "object"
+        properties:
+          com_flexget:
+            type: "object"
+            properties:
+              apiToken:
+                type: "null"
+              enabled:
+                type: "boolean"
+              flexgetCheckFrequency:
+                type: "integer"
+              flexgetHost:
                 type: "string"
-              description: 
+              flexgetPass:
                 type: "string"
-              detailLink: 
+              flexgetPort:
+                type: "integer"
+              flexgetUser:
                 type: "string"
-        title: 
-          type: "string"
-        id: 
-          type: "string"
-    seriesEnabledEntry: 
-      type: "object"
-      properties: 
-        id: 
-          type: "string"
-        sourceId: 
-          type: "string"
-        title: 
-          type: "string"
-  basePath: "/api/v1"
-  responses: 
-    downloadResponse: 
-      description: "Typical response from a call to /downloads"
-      schema: 
-        type: "array"
-        items: 
-          $ref: "#/definitions/downloadEntry"
-      examples: 
-        application/json: 
-          - 
-            hashString: "nisi"
-            percentDone: -92746936
-            eta: 85060245
-            isFinished: false
-            isStalled: true
-            mediaType: "photo"
-            sourceId: "cillum laboris labo"
-            size: 76965655
-            startDate: "1949-09-06T11:27:55.902Z"
-            title: "Duis lab"
-            downloadMechanism: "laboris ex consequat reprehenderit"
-            rateDownload: 38597331
-            sourceData: {}
-          - 
-            hashString: "enim dolor"
-            percentDone: -30360695
-            eta: 88104805
-            isFinished: true
-            isStalled: false
-            mediaType: "photo"
-            sourceId: "Lorem amet ut"
-            size: 2952358
-            startDate: "2016-10-17T08:15:18.136Z"
-            title: "incididunt id ea"
-            downloadMechanism: "aute"
-            rateDownload: -34736926
-            sourceData: {}
-          - 
-            hashString: "ipsum elit quis amet"
-            percentDone: 76582371
-            eta: 30156531
-            isFinished: false
-            isStalled: true
-            mediaType: "photo"
-            sourceId: "voluptate incididunt pariatur ad"
-            size: 68510321
-            startDate: "1941-02-08T21:40:19.552Z"
-            title: "Ut culpa do"
-            downloadMechanism: "elit Excepteur dolo"
-            rateDownload: 52744531
-            sourceData: {}
-    searchResponse: 
-      description: ""
-      schema: 
-        type: "array"
-        items: 
-          $ref: "#/definitions/searchResultEntry"
-      examples: 
-        application/json: 
-          - 
-            sourceId: "cillum aliqua"
-            downloadMechanism: "sed anim reprehenderit"
-            id: "Ut nostrud consequat dolore"
-            title: "nostrud pariatur dolor et"
-            sourceName: "ut ea ullamco sed labore"
-            score: 98500140.3094976
-            flexgetModel: "exercitation proident"
-            mediaType: "ea consectetur aute deserunt"
-            category: "nostrud enim adipisicing culpa"
-            size: "sed id"
-          - 
-            sourceId: "ad Lorem proident dolor"
-            downloadMechanism: "anim sunt officia amet Duis"
-            id: "pariatur proident minim"
-            title: "ipsum ea Lorem et"
-            sourceName: "pariatur irure id sit"
-            score: 44001117.74601233
-            flexgetModel: "nisi enim consequat Ut"
-            mediaType: "in ex"
-            category: "elit cupidatat"
-            size: "voluptate anim irure"
-          - 
-            sourceId: "culpa id"
-            downloadMechanism: "dolor magna"
-            id: "dolore"
-            title: "non"
-            sourceName: "voluptate velit"
-            score: 41821842.43931264
-            flexgetModel: "magna nulla"
-            mediaType: "reprehenderit anim"
-            category: "in commod"
-            size: "in voluptate"
-    seriesEntriesResponse: 
-      description: ""
-      schema: 
-        type: "array"
-        items: 
-          $ref: "#/definitions/seriesEntry"
-      examples: 
-        application/json: 
-          - 
-            sourceId: "dolore deserunt aute aliquip"
-            mediaType: "aliqua cillum veniam"
-            id: "et ullamco"
-            title: "anim ad"
-            sourceName: "Duis eu occaecat"
-            flexgetModel: "commodo eu do"
-            category: "qui dolor eu fugiat"
-            size: "amet dolor et tempor nisi"
-          - 
-            sourceId: "culpa Ut Duis irure"
-            mediaType: "irure Lorem"
-            id: "aliqua aliquip sit ea"
-            title: "mollit"
-            sourceName: "lab"
-            flexgetModel: "incididunt deserunt cupidatat"
-            category: "esse pariatur dolor"
-            size: "pariatur minim"
-          - 
-            sourceId: "reprehenderit elit adipisicing sint"
-            mediaType: "quis commod"
-            id: "incididunt ut"
-            title: "veniam sint ut sunt"
-            sourceName: "ex fugiat"
-            flexgetModel: "elit"
-            category: "est ad"
-            size: "dolor Lorem mollit"
-    trendingMediaResponse: 
-      description: ""
-      schema: 
-        type: "array"
-        items: 
+          com_kapture_url:
+            type: "object"
+            properties:
+              enabled:
+                type: "boolean"
+          com_piratebay:
+            type: "object"
+            properties:
+              enabled:
+                type: "boolean"
+          com_transmissionbt:
+            type: "object"
+            properties:
+              enabled:
+                type: "boolean"
+              transmissionHost:
+                type: "string"
+              transmissionPass:
+                type: "string"
+              transmissionPort:
+                type: "integer"
+              transmissionUser:
+                type: "string"
+          com_youtube:
+            type: "object"
+            properties:
+              enabled:
+                type: "boolean"
+          info_showrss:
+            type: "object"
+            properties:
+              enabled:
+                type: "boolean"
+      system:
+        type: "object"
+        properties:
+          name:
+            type: "string"
+      userInfo:
+        type: "object"
+        properties:
+          email:
+            type:
+              - "null"
+              - "string"
+  trendingMediaAggregateModel:
+    type: "object"
+    description: "Captures a the response from an aggregation of trending media sources"
+    properties:
+      series:
+        type:
+          - "array"
+          - "null"
+        items:
           $ref: "#/definitions/trendingMediaEntry"
-      examples: 
-        application/json: 
-          - 
-            type: "photo"
-            title: "cupidatat dolor"
-            additionalInfoUrl: "cillum ex reprehenderit"
-            sourceId: "Excepteur in occaecat irure"
-            id: "cillum dolor ipsum pariatur"
-            score: -93292389.50193739
-          - 
-            type: "music"
-            title: "deserunt si"
-            additionalInfoUrl: "labore qui fugiat non"
-            sourceId: "est proident fugiat pariatur labore"
-            id: "elit dolor Ut fugiat"
-            score: -64599013.23188566
-          - 
-            type: "movie"
-            title: "nulla dolore"
-            additionalInfoUrl: "cillum sed aliquip"
-            sourceId: "laboris ex Duis laborum minim"
-            id: "officia"
-            score: 81205392.92131376
-          - 
-            type: "movie"
-            title: "et voluptate"
-            additionalInfoUrl: "ut in"
-            sourceId: "esse id qui amet"
-            id: "sint et nisi nulla est"
-            score: 30192020.44975567
-          - 
-            type: "music"
-            title: "id nisi"
-            additionalInfoUrl: "reprehenderit ut in deserunt"
-            sourceId: "aute dolor"
-            id: "ullamco ad"
-            score: -58345879.4525455
-    trendingMediaAggregateResponse: 
-      description: "Response of a trending media aggregate query"
-      schema: 
-        $ref: "#/definitions/trendingMediaAggregateModel"
-    seriesInfoResponse: 
-      description: "Response that contains info about a particular series info"
-      schema: 
-        $ref: "#/definitions/seriesInfoEntry"
-  parameters: 
-    filterQueryString: 
-      name: "filter"
-      in: "query"
-      type: "string"
-      description: "This field allows for users to filter on specific fields that come back in objects from search results.  The format is simply: `key1:value;key2:value2`."
-      pattern: "((?:\\w+:\\w+));?"
-  tags: 
-    - 
-      name: "Searching"
-    - 
-      name: "Downloading"
-    - 
-      name: "Uploading"
-    - 
-      name: "Trending"
-    - 
-      name: "Series"
-    - 
-      name: "Settings"
+      photos:
+        type:
+          - "array"
+          - "null"
+        items:
+          $ref: "#/definitions/trendingMediaEntry"
+      music:
+        type:
+          - "array"
+          - "null"
+        items:
+          $ref: "#/definitions/trendingMediaEntry"
+      movies:
+        type:
+          - "array"
+          - "null"
+        items:
+          $ref: "#/definitions/trendingMediaEntry"
+      other:
+        type:
+          - "array"
+          - "null"
+        items:
+          $ref: "#/definitions/trendingMediaEntry"
+  seriesInfoEntry:
+    type: "object"
+    properties:
+      seen:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            title:
+              type: "string"
+            uploaded:
+              type: "string"
+              format: "date-time"
+            slug:
+              type: "string"
+            sourceData:
+              type: "string"
+            downloadMechanism:
+              type: "string"
+            showName:
+              type: "string"
+      upcoming:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            title:
+              type: "string"
+            date:
+              type: "string"
+            description:
+              type: "string"
+            detailLink:
+              type: "string"
+      title:
+        type: "string"
+      id:
+        type: "string"
+  seriesEnabledEntry:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      sourceId:
+        type: "string"
+      title:
+        type: "string"
+basePath: "/api/v1"
+responses:
+  downloadResponse:
+    description: "Typical response from a call to /downloads"
+    schema:
+      type: "array"
+      items:
+        $ref: "#/definitions/downloadEntry"
+    examples:
+      application/json:
+        -
+          hashString: "nisi"
+          percentDone: -92746936
+          eta: 85060245
+          isFinished: false
+          isStalled: true
+          mediaType: "photo"
+          sourceId: "cillum laboris labo"
+          size: 76965655
+          startDate: "1949-09-06T11:27:55.902Z"
+          title: "Duis lab"
+          downloadMechanism: "laboris ex consequat reprehenderit"
+          rateDownload: 38597331
+          sourceData: {}
+        -
+          hashString: "enim dolor"
+          percentDone: -30360695
+          eta: 88104805
+          isFinished: true
+          isStalled: false
+          mediaType: "photo"
+          sourceId: "Lorem amet ut"
+          size: 2952358
+          startDate: "2016-10-17T08:15:18.136Z"
+          title: "incididunt id ea"
+          downloadMechanism: "aute"
+          rateDownload: -34736926
+          sourceData: {}
+        -
+          hashString: "ipsum elit quis amet"
+          percentDone: 76582371
+          eta: 30156531
+          isFinished: false
+          isStalled: true
+          mediaType: "photo"
+          sourceId: "voluptate incididunt pariatur ad"
+          size: 68510321
+          startDate: "1941-02-08T21:40:19.552Z"
+          title: "Ut culpa do"
+          downloadMechanism: "elit Excepteur dolo"
+          rateDownload: 52744531
+          sourceData: {}
+  searchResponse:
+    description: ""
+    schema:
+      type: "array"
+      items:
+        $ref: "#/definitions/searchResultEntry"
+    examples:
+      application/json:
+        -
+          sourceId: "cillum aliqua"
+          downloadMechanism: "sed anim reprehenderit"
+          id: "Ut nostrud consequat dolore"
+          title: "nostrud pariatur dolor et"
+          sourceName: "ut ea ullamco sed labore"
+          score: 98500140.3094976
+          flexgetModel: "exercitation proident"
+          mediaType: "ea consectetur aute deserunt"
+          category: "nostrud enim adipisicing culpa"
+          size: "sed id"
+        -
+          sourceId: "ad Lorem proident dolor"
+          downloadMechanism: "anim sunt officia amet Duis"
+          id: "pariatur proident minim"
+          title: "ipsum ea Lorem et"
+          sourceName: "pariatur irure id sit"
+          score: 44001117.74601233
+          flexgetModel: "nisi enim consequat Ut"
+          mediaType: "in ex"
+          category: "elit cupidatat"
+          size: "voluptate anim irure"
+        -
+          sourceId: "culpa id"
+          downloadMechanism: "dolor magna"
+          id: "dolore"
+          title: "non"
+          sourceName: "voluptate velit"
+          score: 41821842.43931264
+          flexgetModel: "magna nulla"
+          mediaType: "reprehenderit anim"
+          category: "in commod"
+          size: "in voluptate"
+  seriesEntriesResponse:
+    description: ""
+    schema:
+      type: "array"
+      items:
+        $ref: "#/definitions/seriesEntry"
+    examples:
+      application/json:
+        -
+          sourceId: "dolore deserunt aute aliquip"
+          mediaType: "aliqua cillum veniam"
+          id: "et ullamco"
+          title: "anim ad"
+          sourceName: "Duis eu occaecat"
+          flexgetModel: "commodo eu do"
+          category: "qui dolor eu fugiat"
+          size: "amet dolor et tempor nisi"
+        -
+          sourceId: "culpa Ut Duis irure"
+          mediaType: "irure Lorem"
+          id: "aliqua aliquip sit ea"
+          title: "mollit"
+          sourceName: "lab"
+          flexgetModel: "incididunt deserunt cupidatat"
+          category: "esse pariatur dolor"
+          size: "pariatur minim"
+        -
+          sourceId: "reprehenderit elit adipisicing sint"
+          mediaType: "quis commod"
+          id: "incididunt ut"
+          title: "veniam sint ut sunt"
+          sourceName: "ex fugiat"
+          flexgetModel: "elit"
+          category: "est ad"
+          size: "dolor Lorem mollit"
+  trendingMediaResponse:
+    description: ""
+    schema:
+      type: "array"
+      items:
+        $ref: "#/definitions/trendingMediaEntry"
+    examples:
+      application/json:
+        -
+          type: "photo"
+          title: "cupidatat dolor"
+          additionalInfoUrl: "cillum ex reprehenderit"
+          sourceId: "Excepteur in occaecat irure"
+          id: "cillum dolor ipsum pariatur"
+          score: -93292389.50193739
+        -
+          type: "music"
+          title: "deserunt si"
+          additionalInfoUrl: "labore qui fugiat non"
+          sourceId: "est proident fugiat pariatur labore"
+          id: "elit dolor Ut fugiat"
+          score: -64599013.23188566
+        -
+          type: "movie"
+          title: "nulla dolore"
+          additionalInfoUrl: "cillum sed aliquip"
+          sourceId: "laboris ex Duis laborum minim"
+          id: "officia"
+          score: 81205392.92131376
+        -
+          type: "movie"
+          title: "et voluptate"
+          additionalInfoUrl: "ut in"
+          sourceId: "esse id qui amet"
+          id: "sint et nisi nulla est"
+          score: 30192020.44975567
+        -
+          type: "music"
+          title: "id nisi"
+          additionalInfoUrl: "reprehenderit ut in deserunt"
+          sourceId: "aute dolor"
+          id: "ullamco ad"
+          score: -58345879.4525455
+  trendingMediaAggregateResponse:
+    description: "Response of a trending media aggregate query"
+    schema:
+      $ref: "#/definitions/trendingMediaAggregateModel"
+  seriesInfoResponse:
+    description: "Response that contains info about a particular series info"
+    schema:
+      $ref: "#/definitions/seriesInfoEntry"
+parameters:
+  filterQueryString:
+    name: "filter"
+    in: "query"
+    type: "string"
+    description: "This field allows for users to filter on specific fields that come back in objects from search results.  The format is simply: `key1:value;key2:value2`."
+    pattern: "((?:\\w+:\\w+));?"
+tags:
+  -
+    name: "Searching"
+  -
+    name: "Downloading"
+  -
+    name: "Uploading"
+  -
+    name: "Trending"
+  -
+    name: "Series"
+  -
+    name: "Settings"
 
