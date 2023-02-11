@@ -28,7 +28,7 @@
     "sanitize-filename": "^1.6.1",
     "swagger-routes": "^1.7.0",
     "thepiratebay": "^1.4.7",
-    "torrent-search-api": "^2.0.5",
+    "torrent-search-api": "^2.1.4",
     "winston": "^3.8.2",
     "winston-express": "^0.1.1",
     "xml2json-light": "^1.0.6",

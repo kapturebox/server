@@ -53,15 +53,9 @@ class TorrentSearchSource extends Plugin {
     // enable all public providers from the lib
     const api = TorrentSearchApi;
 
-    api.enablePublicProviders();
-
-    // disable some slow providers
-    api.disableProvider('ExtraTorrent');
-    api.disableProvider('TorrentProject');
-
-    // these just doesnt let pull from url
-    api.disableProvider('Torrent9');
-    api.disableProvider('1337x');
+    // enable only those that return magnets
+    api.enableProvider('Eztv')
+    api.enableProvider('ThePirateBay')
 
     this.api = api;
   }
@@ -79,7 +73,7 @@ class TorrentSearchSource extends Plugin {
     // const results = TorrentSearchApi.search(query, 'Movies', 20);
     try {
       const results = await this.api.search(query);
-      this.logger.info('[torrentsearchapi] raw results: ', results.length);
+      this.logger.info('[torrentsearchapi] results: ', results.length);
 
       const transformed = this.transformResults(results);
       // this.logger.debug('[torrentsearchapi] transformed:', transformed)
@@ -116,7 +110,7 @@ class TorrentSearchSource extends Plugin {
   };
 
   transformResult(object) {
-    var transformed = {
+    const transformed = {
       sourceId: this.metadata.pluginId,
       sourceName: this.metadata.pluginName,
       downloadMechanism: 'torrent',
@@ -125,7 +119,7 @@ class TorrentSearchSource extends Plugin {
       uploaded: Date.parse(object.time),
       downloadUrl: object.magnet,
       magnetLink: object.magnet,
-      hashString: object.magnet.match(/urn:btih:([a-z0-9]{40})/)[1],
+      hashString: object.magnet.match(/urn:btih:([^&]+)&/)[1],
       peers: parseInt(object.seeds) + parseInt(object.peers),
       seeders: parseInt(object.seeds),
       leechers: parseInt(object.peers),
@@ -160,8 +154,14 @@ class TorrentSearchSource extends Plugin {
   }
 
   convertSize(sizeString) {
-    const splitted = sizeString.split(' ');
-    return parseFloat(splitted[0]) * SIZE_MULTIPLIERS[splitted[1]];
+    try {
+      const splitted = sizeString.split(' ');
+      return parseFloat(splitted[0]) * SIZE_MULTIPLIERS[splitted[1]];
+    } catch(err) {
+      this.logger.debug(`[torrentsearchapi] couldn't parse size string: ${sizeString}`)
+      return 0;
+    }
+
   }
 }
 
