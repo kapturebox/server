@@ -7,7 +7,15 @@ jobs:
       # - run: sudo apt install docker.io docker-compose
       - uses: actions/checkout@v3
 
-      - run: docker-compose build
+      - run: docker build -t kapturebox/server:latest .
+      - run: docker build -t kapturebox/server:latest-arm -f Dockerfile.arm
+
+  push-d_latest:
+    runs-on: ubuntu-latest
+    steps:
+      - run: docker tag kapturebox/server:latest kapturebox/server:d_latest
+      - run: docker tag kapturebox/server:latest-arm kapturebox/server:d_latest-arm
+
 
   test:
     runs-on: ubuntu-latest
@@ -22,4 +30,5 @@ jobs:
       - run: docker-compose -p server logs
 
       # run protractor tests against spun up instance
+      # TODO: use newman for this: https://learning.postman.com/docs/running-collections/using-newman-cli/command-line-integration-with-newman/
       - run: docker run -v $(pwd)/app/tests:/tests --network server_default stoplight/prism:v2.0.20 conduct /tests/scenarios.json -e host=http://server:9000
