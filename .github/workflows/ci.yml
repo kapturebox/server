@@ -1,11 +1,10 @@
-name: Build / Test
-# run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: Build & Test
 on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: apt install docker.io docker-compose
+      - run: sudo apt install docker.io docker-compose
       - uses: actions/checkout@v3
 
       - run: docker-compose -p server -f docker-compose.yml up -d --build && sleep 20
