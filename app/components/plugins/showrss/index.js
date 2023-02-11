@@ -27,11 +27,11 @@ class ShowRssSource extends Plugin {
       link: 'http://showrss.info/',             // Link to provider site
       description: 'Updated feed of TV shows'   // Description of plugin provider
     };
-  
+
     const defaultSettings = {
       enabled: true
     };
-  
+
     super(metadata, defaultSettings);
   }
 
@@ -41,31 +41,31 @@ class ShowRssSource extends Plugin {
     const self = this;
     const SHOWS_URL = 'http://showrss.info/browse';
     const SHOWS_XPATH = '//*[@id="showselector"]/option';
-  
+
     if (_.isEmpty(query)) {
       return Promise.reject(new Error('no query string in search'));
     }
-  
+
     return new Promise(function (resolve, reject) {
       request({
         url: SHOWS_URL
       }, function (err, resp, body) {
         if (err) return reject(err);
-  
+
         try {
           var doc = new dom({ errorHandler: function (o) { } }).parseFromString(body);
           var shownames_xml = xpath.select(SHOWS_XPATH, doc);
         } catch (err) {
           return reject(new Error(`cant parse showrss xml: ${err}`));
         }
-  
+
         var shownames = _.filter(shownames_xml, function (e) {
           return e.firstChild !== undefined;
         }).map(function (e) {
           const slug = Buffer
             .from(`info_showrss:${e.getAttribute('value')}`)
             .toString('base64');
-  
+
           return {
             sourceId: self.metadata.pluginId,
             sourceName: self.metadata.pluginName,
@@ -80,21 +80,21 @@ class ShowRssSource extends Plugin {
             title: e.firstChild.data
           };
         });
-  
+
         // gives us just what was searched for
         var shownames_filtered = _.filter(shownames, function (obj) {
           return obj
             && _.isString(obj.title)
             && obj.title.toLowerCase().indexOf(query.toLowerCase()) > -1;
         });
-  
-        self.logger.info('[showrss] results: ', shownames_filtered.length);
+
+        self.logger.info('[showrss] results: %s', shownames_filtered.length);
         resolve(shownames_filtered);
       })
     });
   };
-  
-  
+
+
   removeId(id) {
     var self = this;
     return new Promise(function (resolve, reject) {
@@ -106,23 +106,23 @@ class ShowRssSource extends Plugin {
       }
     });
   }
-  
+
   disableId(id) { return removeId(id) };
-  
-  
+
+
   calculateScore(result) {
     return 1.0 / 10;
   }
-  
+
   status() {
     return Promise.resolve([]);  // uses torrent downloader and flexget
   }
-  
+
   // DEPRECATED
   download(item) {
     return this.enableId(item.id);
   };
-  
+
   // DEPRECATED
   remove(item) {
     var self = this;
@@ -135,16 +135,16 @@ class ShowRssSource extends Plugin {
       }
     });
   }
-  
-  
-  
+
+
+
   ///////////////////
   // SERIES SPECIFIC
   ///////////////////
-  
-  
-  
-  
+
+
+
+
   /** Returns an object that looks something like this:
    * id: id
    * title: name of show
@@ -154,13 +154,13 @@ class ShowRssSource extends Plugin {
    * upcoming:
    *   - title: title of episode
    *     date: if available
-   * 
-   * @param {*} showId 
+   *
+   * @param {*} showId
    */
-  
+
   info(showId) {
     return Promise.all([
-      this.getSeenEpisodes(showId), 
+      this.getSeenEpisodes(showId),
       this.getUpcomingEpisodes(showId)
     ])
     .then((results) => {
@@ -172,7 +172,7 @@ class ShowRssSource extends Plugin {
       }
     })
   }
-  
+
   getUpcomingEpisodes(showId) {
     return new Promise(function (resolve, reject) {
       request({
@@ -184,10 +184,10 @@ class ShowRssSource extends Plugin {
         try {
           const ugly_items = xml2js.xml2json(body).rss.channel;
           const items = ugly_items['item'];
-  
+
           if(!items)
             resolve([]);
-  
+
           resolve(items.map((e) => {
             return {
               description: e['description'],
@@ -202,7 +202,7 @@ class ShowRssSource extends Plugin {
       })
     });
   }
-  
+
   getSeenEpisodes(showId) {
     return new Promise(function (resolve, reject) {
       request({
@@ -211,14 +211,14 @@ class ShowRssSource extends Plugin {
         if (err) {
           return reject(new Error(err.toString()));
         }
-  
+
         try {
           var ugly_items = xml2js.xml2json(body).rss.channel;
           var items = ugly_items['item'];
-  
+
           if (!items)
             return resolve([]);
-  
+
           resolve(items.map(function (e) {
             return {
               title: e['title'],
@@ -236,7 +236,7 @@ class ShowRssSource extends Plugin {
       });
     });
   }
-  
+
   // DEPRECATED
   add(item) {
     var self = this;
@@ -249,15 +249,15 @@ class ShowRssSource extends Plugin {
       }
     });
   }
-  
+
   /**
-   * 
+   *
    * @param {String} id   the source provided id
    */
   enableId(id) {
     var self = this;
     var returnedInfo;
-  
+
     return self
       .info(id)
       .then((info) => {
@@ -268,21 +268,21 @@ class ShowRssSource extends Plugin {
       })
       .then(() => returnedInfo);
   }
-  
+
   downloadId(id) {return this.enableId(id)};
-  
-  
+
+
   getEnabledSeriesNames() {
     return this.getState().map(function (e) {
       return e.title;
     });
   }
-  
+
   getEnabledSeriesIds() {
     return this.stateStore.keys();
   }
-  
-  
+
+
   getEnabledSeries() {
     const self = this;
     return this.getState().map((e) => {
@@ -293,10 +293,10 @@ class ShowRssSource extends Plugin {
       }
     });
   }
-  
+
   flexgetTemplateModel() {
     const transmissionConfig = plugins.getPlugin('com_transmissionbt');
-  
+
     return {
       showrss: {
         all_series: true,
@@ -310,42 +310,42 @@ class ShowRssSource extends Plugin {
       }
     }
   }
-  
-  
+
+
   flexgetTaskModel() {
     var self = this;
     var seriesIds = self.getEnabledSeriesIds();
     var taskObject = {};
-  
+
     if (_.isEmpty(seriesIds)) {
       return { noop: { manual: true } };
     }
-  
+
     seriesIds.forEach(function (id) {
       taskObject[util.format('showRssId%d', id)] = {
         rss: util.format(SHOW_HISTORY_DATA_URL, id),
         template: 'showrss'
       };
     });
-  
+
     return taskObject;
   }
-  
-  
-  
-  
+
+
+
+
   ////////////////
   // Maybe trash?
   ////////////////
-  
-  
+
+
   // url = function( url ) {
   // };
-  
+
   // urlMatches = function( url ) {
   //   return false;
   // };
-  
+
 
 }
 

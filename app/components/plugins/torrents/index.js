@@ -73,7 +73,7 @@ class TorrentSearchSource extends Plugin {
     // const results = TorrentSearchApi.search(query, 'Movies', 20);
     try {
       const results = await this.api.search(query);
-      this.logger.info('[torrentsearchapi] results: ', results.length);
+      this.logger.info('[torrentsearchapi] results: %s', results.length);
 
       const transformed = this.transformResults(results);
       // this.logger.debug('[torrentsearchapi] transformed:', transformed)
