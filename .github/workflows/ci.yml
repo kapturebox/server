@@ -43,15 +43,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: docker-compose up -d
+      - run: docker-compose -p server up -d
 
       # some quick checks to see if it's working as intended
       - run: while ! docker exec server_server_1 curl localhost:9000; do sleep 2; done;
-      - run: docker-compose logs
+      - run: docker-compose -p server logs
 
       # run protractor tests against spun up instance
       # TODO: use newman for this: https://learning.postman.com/docs/running-collections/using-newman-cli/command-line-integration-with-newman/
-      - run: docker run -v $(pwd)/app/tests:/tests --network server_default stoplight/prism:v2.0.20 conduct /tests/scenarios.json -e host=http://server:9000
+      - run: docker run -v $(pwd)/app/tests:/tests --network server_default stoplight/prism:v2.0.5 conduct /tests/scenarios.json -e host=http://server:9000
 
 
   tag-latest:
