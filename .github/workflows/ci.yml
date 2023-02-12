@@ -26,13 +26,13 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: kapturebox/server:{{ github.sha }}
+          tags: kapturebox/server:${{ github.sha }}
       -
         name: Build and push arm
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: kapturebox/server:{{ github.sha }}-arm
+          tags: kapturebox/server:${{ github.sha }}-arm
           file: Dockerfile.arm
 
 
@@ -67,8 +67,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - run: docker tag kapturebox/server:{{ github.sha }}-arm kapturebox/server:latest-arm
+      - run: docker tag kapturebox/server:${{ github.sha }}-arm kapturebox/server:latest-arm
       - run: docker push kapturebox/server:latest-arm
 
-      - run: docker tag kapturebox/server:{{ github.sha }} kapturebox/server:latest
+      - run: docker tag kapturebox/server:${{ github.sha }} kapturebox/server:latest
       - run: docker push kapturebox/server:latest
