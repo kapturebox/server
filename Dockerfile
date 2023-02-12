@@ -1,11 +1,11 @@
-FROM node:18.04-alpine
+FROM node:18.14-alpine
 
 WORKDIR /app
 
 RUN apk update \
   && apk add curl \
   # needed for youtube-dl
-  && apk add python \
+  && apk add python3 \
   && npm install -g gulp
 
 COPY package.json package-lock.json /app/
