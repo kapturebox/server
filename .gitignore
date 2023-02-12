@@ -1,6 +1,9 @@
 node_modules
 settings.yml
 downloads/
-.vscode
 pluginStateStore
 app/config/config/local.yml
+stoplightcommands.md
+yarn.lock
+**/.DS_Store
+.env

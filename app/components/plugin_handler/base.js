@@ -1,11 +1,11 @@
 
 
-const fs = require('fs');
 const persist = require('node-persist');
 const util = require('util');
 const path = require('path');
 const events = require('../events');
 const config = require('../../config');
+const _ = require('lodash');
 
 const stateStorePath = config.get('pluginStateStore');
 
@@ -33,9 +33,14 @@ class Plugin {
       this.logger.error('unable to init state store: %s', err.toString());
     }
 
-    // init settings if not already present
-    if (!this.config.getUserSetting(this.configKey)) {
-      this.config.setUserSetting(this.configKey, this.defaultSettings || {});
+    // init default settings one by one if not already present
+    for(var key of Object.keys(this.defaultSettings)) {
+      var fullKeyName = this.configKey + '.' + key;
+      var val = this.defaultSettings[key];
+
+      if(_.isEmpty(this.config.getUserSetting(fullKeyName))) {
+        this.config.setUserSetting(fullKeyName, val);
+      }
     }
   }
 
@@ -79,7 +84,7 @@ class Plugin {
   }
 
   /**
-   * Get current value from statestore of key 
+   * Get current value from statestore of key
    * @param {String} key  key to get
    */
   getState(key) {

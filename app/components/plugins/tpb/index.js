@@ -34,7 +34,7 @@ class ThepiratebaySource extends Plugin {
     };
 
     const defaultSettings = {
-      enabled: true
+      enabled: false
     };
 
     super(metadata, defaultSettings);

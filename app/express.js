@@ -9,11 +9,13 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const winstonExpress = require('express-winston');
 const uploader = require('express-fileupload');
+const cors = require('cors')
 
 const config = require('./config');
 
 
 module.exports = function( app ) {
+  app.use(cors())
   app.use(compression());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());

@@ -1,28 +1,23 @@
+const {createLogger, format, transports} = require('winston');
+const util = require('util');
 
+const createMainLogger = () => {
+  let logLevel = process.env.LOG_LEVEL || 'info';
+  let logFormat = [format.splat(), format.simple(), format.timestamp()];
 
-var winston = require('winston');
-var util = require('util');
+  if(process.env.NODE_ENV === 'development') {
+    logLevel = 'debug';
+    logFormat = [format.colorize(), ...logFormat]
+  }
 
-module.exports = function() {
-  var loglevel = 'info';
+  console.log( util.format( 'environment: %s, log level: %s', process.env.NODE_ENV, logLevel ));
 
-  if( process.env.LOG_LEVEL ) {
-    loglevel = process.env.LOG_LEVEL;
-  } else if( process.env.NODE_ENV === 'development' ) {
-    loglevel = 'debug';
-  } 
-
-  console.log( util.format( 'environment: %s, log level: %s', process.env.NODE_ENV, loglevel ));
-
-  return new (winston.Logger)({
-    transports: [
-      new (winston.transports.Console)({
-        colorize: process.env.NODE_ENV === 'production' ? false : true,
-        prettyPrint: true,
-        timestamp: true,
-        stderrLevels: ['error'],
-        level: loglevel
-      })
-    ]
+  const logger = createLogger({
+    level: logLevel,
+    format: format.combine(...logFormat),
+    transports: new transports.Console()
   })
+  return logger;
 };
+
+module.exports = createMainLogger;

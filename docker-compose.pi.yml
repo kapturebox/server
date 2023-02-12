@@ -1,0 +1,26 @@
+version: '2.3'
+
+volumes:
+  media:
+  config:
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.arm
+    image: kapturebox/server:latest-arm
+
+  transmission:
+    image: lsioarmhf/transmission
+
+  flexget:
+    image: gaieges/flexget:latest
+
+  # not necessary at the moment..
+  plex:
+    image: jaymoulin/plex
+    ports:
+      - '32400:32400'
+    volumes:
+      - media:/media

@@ -24,7 +24,7 @@ class TransmissionDownloader extends Plugin {
 
     const defaultSettings = {
       enabled: true,
-      transmissionHost: process.env.TRANSMISSION_HOST || 'transmission',
+      transmissionHost: process.env.TRANSMISSION_HOST || 'localhost',
       transmissionPort: process.env.TRANSMISSION_PORT || 9091,
       transmissionUser: process.env.TRANSMISSION_USER || 'admin',
       transmissionPass: process.env.TRANSMISSION_PASS || 'password',
@@ -40,6 +40,8 @@ class TransmissionDownloader extends Plugin {
       'video': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies')),
       'videos': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.movies')),
       'tvshow': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
+      'shows': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
+      'show': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.shows')),
       'audio': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
       'music': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
       'photos': path.join(this.config.getUserSetting('downloadPaths.root'), this.config.getUserSetting('downloadPaths.music')),
@@ -73,7 +75,7 @@ class TransmissionDownloader extends Plugin {
 
   // DEPRECATED
   download(item) {
-    return this.downloadMagnet(item.downloadUrl, self.getDownloadPath(item.mediaType));
+    return this.downloadMagnet(item.downloadUrl, this.getDownloadPath(item.mediaType));
   }
 
 

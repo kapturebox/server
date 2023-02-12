@@ -3,7 +3,7 @@ port: 9000
 ip: 0.0.0.0
 pluginStateStore: pluginStateStore
 system:
-    name: default
+    name: kapture
 userInfo:
     email: null
 downloadPaths:
@@ -13,4 +13,12 @@ downloadPaths:
     music: music
     photos: photos
     default: downloads
-plugins: {}
+plugins:
+  com_transmissionbt:
+    enabled: true
+    transmissionHost: localhost
+    transmissionPort: 9091
+  com_flexget:
+    enabled: true
+    flexgetCheckFrequency: 15 # minutes
+

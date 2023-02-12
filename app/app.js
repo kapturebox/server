@@ -6,13 +6,16 @@
 
 
 const express = require('express');
+const dotenv = require('dotenv')
+dotenv.config()
 
-// Set default node environment to production
-process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
+// Set default node environment to development
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 const config = require('./config');
 
 // Setup server
-var app = express();
+const app = express();
 
 require('./express')( app );
 require('./makedirs')( config );

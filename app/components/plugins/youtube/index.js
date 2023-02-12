@@ -11,9 +11,6 @@ const path = require('path');
 const sanitize = require('sanitize-filename');
 const Plugin = require('../../plugin_handler/base');
 
-// TODO: move to settings and allow user to change
-const youtubeSearchToken = 'AIzaSyAlhhTxfbaIjaCHi4qs5rl95PtpmcRTZTA';
-
 const YOUTUBE_VIDEO_URL = 'https://www.youtube.com/watch?v=%s';
 
 // Used for scoring
@@ -34,16 +31,21 @@ class YoutubeSource extends Plugin {
       // downloadMechanism can it download?
       description: 'You know what youtube is'   // Description of plugin provider
     };
-  
+
     const defaultSettings = {
-      enabled: true
-      // TODO: api key needs to be stored here
+      enabled: true,
+      apiToken: process.env.YOUTUBE_API_TOKEN
     };
-  
+
     super(metadata, defaultSettings);
-  
+
+    if(!this.get('apiToken')) {
+      this.set('enabled', false);
+      this.logger.warn(`${metadata.pluginName} apiToken not set, youtube searches are disabled.  this can be set via the api or via env var YOUTUBE_API_TOKEN.  A token can be obtained at: https://developers.google.com/youtube/registering_an_application`);
+      return;
+    }
+
     this.youtubesdk = new youtubesdk();
-    this.youtubesdk.use(youtubeSearchToken);  
   }
 
 
@@ -89,7 +91,7 @@ class YoutubeSource extends Plugin {
         }
 
         // gets rid of annoying warnings from youtube-dl lib
-        delete kapResult.sourceData.resolution;
+        // delete kapResult['sourceData']['resolution'];
 
         resolve(kapResult);
       });
@@ -148,10 +150,10 @@ class YoutubeSource extends Plugin {
       slug: Buffer.from(result.id).toString('base64'),
       fullPath: path.resolve(
         path.join(
-          this.config.getUserSetting('downloadPaths.root'), 
-          this.config.getUserSetting('downloadPaths.default'), 
+          this.config.getUserSetting('downloadPaths.root'),
+          this.config.getUserSetting('downloadPaths.default'),
           sanitize(result._filename)
-      )), 
+      )),
       sourceData: result
     };
 
@@ -177,53 +179,40 @@ class YoutubeSource extends Plugin {
 
 
 
-  search(query) {
-    var self = this;
+  search = async (query) => {
+    const opts = {
+      maxResults: 30,
+      key: this.get('apiToken'),
+      type: 'video',
+      order: 'relevance'
+    };
 
-    return new Promise(function (resolve, reject) {
-      var opts = {
-        maxResults: 30,
-        key: youtubeSearchToken,
-        type: 'video',
-        order: 'relevance'
-      };
+    const results = (await youtubesearch(query, opts)).results;
+    this.logger.info('[%s] results: %d', this.metadata.pluginName, results.length);
 
-      youtubesearch(query, opts, function (err, results) {
-        if (err) {
-          return reject(new Error(err.toString()));
-        }
-
-        self.logger.info('[%s] results: %d', self.metadata.pluginName, results.length);
-
-        resolve(results);
-      });
-    }).then(function (ids) {
-      return self.getMetadataFromResults(ids);
-    }).then(function (itemsWithMetadata) {
-      return self.transformSearchResults(itemsWithMetadata.items);
-    });
+    const itemsWithMetadata = await this.getMetadataFromResults(results);
+    return this.transformSearchResults(itemsWithMetadata.items);
   };
 
 
-  getMetadataFromResults(results) {
-    var self = this;
+  getMetadataFromResults = (results) => {
+    const self = this;
+    const params = {
+      part: 'snippet,statistics,contentDetails',
+      id: results.map(function (e) {
+        return e.id;
+      }).join(',')
+    };
 
-    return new Promise(function (resolve, reject) {
-      var params = {
-        part: 'snippet,statistics,contentDetails',
-        id: results.map(function (e) {
-          return e.id;
-        }).join(',')
-      };
-
+    this.youtubesdk.use(this.get('apiToken'));
+    return new Promise((resolve, reject) => {
       self.youtubesdk.get('videos', params, function (err, items) {
         if (err) {
-          return reject(new Error(err.toString()));
+          return reject(err);
         }
         resolve(items);
       })
-    });
-
+    })
   }
 
 
@@ -247,7 +236,7 @@ class YoutubeSource extends Plugin {
         downloadUrl: util.format(YOUTUBE_VIDEO_URL, e.id),
         hashString: sha1.digest('hex'),
         size: self.calculateSize(e),
-        score: self.calculateScore(e), 
+        score: self.calculateScore(e),
         sourceData: e
       }
     });
@@ -270,10 +259,10 @@ class YoutubeSource extends Plugin {
         + (parseInt(durMatches[6] || 0));
 
       const ret = seconds * (definition === 'hd' ? HD_BITS_PER_SEC : SD_BITS_PER_SEC);
+      this.logger.debug('name: %s, seconds: %d, definition: %s, ret: %d, durMatches: %s', result.snippet.title, seconds, definition, ret, durMatches);
 
       return ret;
     } catch (err) {
-      this.logger.debug('name: %s, seconds: %d, definition: %s, ret: %d, durMatches: %s', result.snippet.title, seconds, definition, ret, durMatches);
       this.logger.warn('error calculating size:', result.contentDetails, err);
       return null;
     }

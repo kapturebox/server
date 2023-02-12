@@ -1,15 +1,19 @@
-FROM node:18.14-alpine
+FROM balenalib/raspberrypi3-alpine-node
 
 WORKDIR /app
 
+
+RUN [ "cross-build-start" ]
+
 RUN apk update \
-  && apk add curl \
+  && apk add curl python3 \
   # needed for youtube-dl
-  && apk add python3 \
   && npm install -g gulp
 
 COPY package.json package-lock.json /app/
 RUN npm install
+
+RUN [ "cross-build-end" ]
 
 COPY . /app/
 
