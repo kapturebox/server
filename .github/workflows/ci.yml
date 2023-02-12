@@ -67,8 +67,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - run: docker tag kapturebox/server:${{ github.sha }}-arm kapturebox/server:latest-arm
-      - run: docker push kapturebox/server:latest-arm
+      - name: tag image as latest-arm
+        run: |
+          docker pull kapturebox/server:${{ github.sha }}-arm
+          docker tag kapturebox/server:${{ github.sha }}-arm kapturebox/server:latest-arm
+          docker push kapturebox/server:latest-arm
 
-      - run: docker tag kapturebox/server:${{ github.sha }} kapturebox/server:latest
-      - run: docker push kapturebox/server:latest
+      - name: tag image as latest-arm
+        run: |
+          docker pull kapturebox/server:${{ github.sha }}
+          docker tag kapturebox/server:${{ github.sha }} kapturebox/server:latest
+          docker push kapturebox/server:latest
