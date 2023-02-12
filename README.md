@@ -4,7 +4,18 @@
 
 > This is the backend API for the Kapture server
 
-# Getting started
+
+# Quickstart with Docker
+
+To get the entire system up and running, the quickest way is to use the docker build:
+
+```bash
+docker-compose up
+```
+
+This will get you a fully working kapture server installation (with dependent services) in docker that you can access via [localhost:9000](localhost:9000).  See the [API documentation](http://kapture.docs.stoplight.io) on how to properly use it.
+
+# Local Development
 
 Easiest way to get up and running here is to start up a local server:
 
@@ -19,7 +30,7 @@ Then connect to http://localhost:9000
 
 
 
-# API Spec
+# API
 
 [The entire API spec is well documented here](https://kapture.docs.stoplight.io)
 

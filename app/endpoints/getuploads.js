@@ -4,7 +4,13 @@
  * GET: /api/v1/uploads
  * 
  */
+const plugins = require('../components/plugin_handler');
+
 exports.handler = function getuploads(req, res, next) {
-  res.send('getuploads')
-  next()
+  const uploader = plugins.getPlugin('com_kapturebox_uploader');
+
+  uploader
+    .status()
+    .then((results) => res.status(200).json(results))
+    .catch(next);
 }
