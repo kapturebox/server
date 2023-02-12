@@ -40,7 +40,7 @@ jobs:
       - run: docker-compose -p server up -d
 
       # some quick checks to see if it's working as intended
-      - run: while ! docker exec server_server_1 curl localhost:9000; do sleep 2; done;
+      - run: while ! docker exec server_server_1 curl -vf localhost:9000/health; do sleep 2; done;
       - run: docker-compose -p server logs
 
       # run protractor tests against spun up instance
