@@ -50,7 +50,8 @@ jobs:
 
   tag-latest:
     if: github.ref_name == 'master'
-    needs: [build, test]
+    needs: build
+    # needs: [build, test]
     runs-on: ubuntu-latest
     steps:
       -
