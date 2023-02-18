@@ -13,7 +13,7 @@ RUN npm install
 
 COPY . /app/
 
-CMD npm start
+CMD npm run dist
 
 HEALTHCHECK \
    --start-period=5s \
