@@ -61,9 +61,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: setup
+
       - name: tag image as latest
+        # docker image tagging stuff is less functional w/ multi arch. instead, interact directly with the registry.
         run: |
-          docker pull --platform amd64 kapturebox/server:${{ github.sha }}
-          docker pull --platform linux/arm/v7 kapturebox/server:${{ github.sha }}
-          docker tag kapturebox/server:${{ github.sha }} kapturebox/server:latest
-          docker push kapturebox/server:latest
+          curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 >regctl
+          chmod 755 regctl
+          ./regctl image copy kapturebox/server:${{ github.sha }} kapturebox/server:latest
