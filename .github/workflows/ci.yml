@@ -61,8 +61,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: setup
-
       - name: tag image as latest
         # docker image tagging stuff is less functional w/ multi arch. instead, interact directly with the registry.
         run: |
