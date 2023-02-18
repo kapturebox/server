@@ -1,5 +1,7 @@
 FROM node:18.14-alpine
 
+ENV LOG_LEVEL="info"
+
 WORKDIR /app
 
 RUN apk update \
