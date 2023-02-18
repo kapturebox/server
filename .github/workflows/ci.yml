@@ -64,6 +64,6 @@ jobs:
       - name: tag image as latest
         # docker image tagging stuff is less functional w/ multi arch. instead, interact directly with the registry.
         run: |
-          curl -L https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64 >regctl
+          curl -L https://github.com/regclient/regclient/releases/download/v0.4.5/regctl-linux-amd64 >regctl
           chmod 755 regctl
           ./regctl image copy kapturebox/server:${{ github.sha }} kapturebox/server:latest
